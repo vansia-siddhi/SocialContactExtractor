@@ -3,9 +3,23 @@ services:
     name: social-contact-extractor
     runtime: python
     buildCommand: |
+      apt-get update
+      apt-get install -y wget unzip gnupg
+      wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
+      echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list
+      apt-get update
+      apt-get install -y google-chrome-stable
+      wget -q https://storage.googleapis.com/chrome-for-testing-public/121.0.6167.184/linux64/chromedriver-linux64.zip
+      unzip -o chromedriver-linux64.zip
+      mv chromedriver-linux64/chromedriver /usr/local/bin/chromedriver
+      chmod +x /usr/local/bin/chromedriver
       pip install --upgrade pip
       pip install -r requirements.txt
     startCommand: gunicorn app:app
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
+      - key: CHROME_BIN
+        value: /usr/bin/google-chrome
+      - key: CHROMEDRIVER_PATH
+        value: /usr/local/bin/chromedriver
