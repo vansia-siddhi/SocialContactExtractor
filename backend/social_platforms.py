@@ -4,24 +4,8 @@ from bs4 import BeautifulSoup
 from typing import Dict, Optional, List
 import logging
 import time
-import os
-import sys
 
 logger = logging.getLogger(__name__)
-
-# Try to import selenium, but handle gracefully if not available
-try:
-    from selenium import webdriver
-    from selenium.webdriver.common.by import By
-    from selenium.webdriver.support.ui import WebDriverWait
-    from selenium.webdriver.support import expected_conditions as EC
-    from selenium.webdriver.chrome.options import Options
-    from selenium.webdriver.chrome.service import Service
-    from selenium.common.exceptions import TimeoutException, NoSuchElementException
-    SELENIUM_AVAILABLE = True
-except ImportError:
-    SELENIUM_AVAILABLE = False
-    logger.warning("Selenium not available. Some features will be limited.")
 
 class SocialPlatformParser:
     """Base class for social media platform parsers"""
@@ -44,95 +28,6 @@ class SocialPlatformParser:
         except Exception as e:
             logger.error(f"Error fetching {url}: {str(e)}")
             return None
-
-    def _fetch_with_selenium(self, url: str, wait_time: int = 15) -> Optional[str]:
-        """Fetch page content using Selenium"""
-        if not SELENIUM_AVAILABLE:
-            logger.warning("Selenium not available, falling back to requests")
-            return self._fetch_page(url)
-
-        driver = None
-        try:
-            chrome_options = Options()
-
-            # Common options for both local and Render
-            chrome_options.add_argument("--headless")
-            chrome_options.add_argument("--no-sandbox")
-            chrome_options.add_argument("--disable-dev-shm-usage")
-            chrome_options.add_argument("--disable-gpu")
-            chrome_options.add_argument("--window-size=1920,1080")
-            chrome_options.add_argument("--disable-blink-features=AutomationControlled")
-
-            # Try multiple Chrome binary locations
-            chrome_paths = [
-                "/usr/bin/google-chrome",  # Render
-                "/usr/bin/chromium-browser",  # Render alternative
-                "/usr/bin/chromium",  # Some Linux
-                None  # Let webdriver-manager find it
-            ]
-
-            for chrome_path in chrome_paths:
-                if chrome_path and os.path.exists(chrome_path):
-                    chrome_options.binary_location = chrome_path
-                    logger.info(f"Using Chrome at: {chrome_path}")
-                    break
-
-            # Try multiple ChromeDriver paths
-            driver_paths = [
-                "/usr/local/bin/chromedriver",  # Render
-                None  # Let webdriver-manager find it
-            ]
-
-            service = None
-            for driver_path in driver_paths:
-                if driver_path and os.path.exists(driver_path):
-                    service = Service(driver_path)
-                    logger.info(f"Using ChromeDriver at: {driver_path}")
-                    break
-
-            if not service:
-                # Use webdriver-manager to find ChromeDriver
-                try:
-                    from webdriver_manager.chrome import ChromeDriverManager
-                    service = Service(ChromeDriverManager().install())
-                    logger.info("Using webdriver-manager for ChromeDriver")
-                except:
-                    # Fallback: try to create driver without service
-                    pass
-
-            if service:
-                driver = webdriver.Chrome(service=service, options=chrome_options)
-            else:
-                driver = webdriver.Chrome(options=chrome_options)
-
-            driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
-
-            driver.get(url)
-
-            # Wait for page to load
-            time.sleep(5)
-            wait = WebDriverWait(driver, wait_time)
-            wait.until(EC.presence_of_element_located((By.TAG_NAME, "body")))
-
-            # Scroll to load content
-            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            time.sleep(2)
-            driver.execute_script("window.scrollTo(0, 0);")
-            time.sleep(2)
-
-            page_source = driver.page_source
-            return page_source
-
-        except Exception as e:
-            logger.error(f"Error fetching {url} with Selenium: {str(e)}")
-            # Fallback to requests
-            return self._fetch_page(url)
-        finally:
-            if driver:
-                try:
-                    driver.quit()
-                except:
-                    pass
 
     def _extract_email(self, text: str) -> Optional[str]:
         """Extract email from text"""
@@ -239,48 +134,38 @@ class SocialPlatformParser:
             if formatted_lines:
                 return '\n'.join(formatted_lines)
 
-        numbered_pattern = r'(\d+\.\s*[^\d]+?)(?=\s*\d+\.\s*|$)'
-        matches = re.findall(numbered_pattern, address)
-
-        if len(matches) > 1:
-            formatted_addresses = []
-            address_counter = 1
-            for match in matches:
-                clean_addr = match.strip()
-                clean_addr = re.sub(r'Get directions', '', clean_addr, flags=re.IGNORECASE)
-                formatted_addr = self._clean_and_format_single_address(clean_addr, address_counter)
-                if formatted_addr:
-                    formatted_addresses.append(formatted_addr)
-                    address_counter += 1
-
-            if formatted_addresses:
-                return '\n'.join(formatted_addresses)
-
         return self._clean_and_format_single_address(address)
 
 
 class LinkedInParser(SocialPlatformParser):
-    """Parser for LinkedIn profiles"""
+    """Parser for LinkedIn profiles - uses requests"""
 
     def parse(self, url: str) -> Dict[str, Optional[str]]:
         logger.info(f"Parsing LinkedIn profile: {url}")
 
-        page_content = self._fetch_with_selenium(url)
+        page_content = self._fetch_page(url)
 
         if not page_content:
             logger.warning(f"Failed to fetch LinkedIn page: {url}")
-            return {
-                'phone': 'Not found',
-                'email': 'Not found',
-                'office': 'Not found'
-            }
+            # Try alternative URL format (remove in.linkedin.com -> linkedin.com)
+            if "in.linkedin.com" in url:
+                alt_url = url.replace("in.linkedin.com", "www.linkedin.com")
+                logger.info(f"Trying alternative URL: {alt_url}")
+                page_content = self._fetch_page(alt_url)
+
+            if not page_content:
+                return {
+                    'phone': 'Not found',
+                    'email': 'Not found',
+                    'office': 'Not found'
+                }
 
         soup = BeautifulSoup(page_content, 'html.parser')
         text = soup.get_text()
 
         email = self._extract_email(text)
         phone = self._extract_phone(text)
-        office = self._extract_linkedin_addresses(soup)
+        office = self._extract_linkedin_addresses(soup, text)
 
         if office and office != 'Not found':
             office = self._format_address_with_proper_spacing(office)
@@ -293,76 +178,58 @@ class LinkedInParser(SocialPlatformParser):
             'office': office if office else 'Not found'
         }
 
-    def _extract_linkedin_addresses(self, soup: BeautifulSoup) -> Optional[str]:
+    def _extract_linkedin_addresses(self, soup: BeautifulSoup, text: str) -> Optional[str]:
+        """Extract address from LinkedIn page"""
         try:
-            addresses = []
-            seen_addresses = set()
+            # Method 1: Look for address in the page text using patterns
+            address = self._extract_address_from_text(text)
+            if address:
+                logger.info(f"Found address from text: {address}")
+                return address
 
-            for i in range(10):
-                address_element = soup.find(id=f'address-{i}')
-                if address_element:
-                    address_text = address_element.get_text(strip=True)
-                    if address_text and len(address_text) > 5:
-                        address_text = self._clean_address(address_text)
-                        if address_text and address_text not in seen_addresses:
-                            addresses.append(address_text)
-                            seen_addresses.add(address_text)
-                            logger.info(f"Found address-{i}: {address_text}")
+            # Method 2: Look for location in meta tags
+            meta_selectors = [
+                'meta[property="og:description"]',
+                'meta[name="description"]',
+            ]
 
-            if not addresses:
-                location_selectors = [
-                    '.pv-top-card-section__location',
-                    '.pv-top-card--list .t-black--light',
-                    '[data-field="location"]',
-                    '.pv-top-card .pv-top-card-section__location',
-                ]
+            for selector in meta_selectors:
+                elements = soup.select(selector)
+                for element in elements:
+                    content = element.get('content', '')
+                    if content:
+                        address = self._extract_address_from_text(content)
+                        if address:
+                            logger.info(f"Found address in meta: {address}")
+                            return address
 
-                for selector in location_selectors:
-                    elements = soup.select(selector)
-                    for element in elements:
-                        text = element.get_text(strip=True)
-                        if text and len(text) > 5:
-                            text = self._clean_address(text)
-                            if text and text not in seen_addresses:
-                                addresses.append(text)
-                                seen_addresses.add(text)
+            # Method 3: Look for location in specific sections
+            location_selectors = [
+                '.pv-top-card-section__location',
+                '.pv-top-card--list .t-black--light',
+                '[data-field="location"]',
+                '.pv-top-card .pv-top-card-section__location',
+                '.org-location',
+                '.org-locations',
+                '.pv-about-section .pv-about__summary-text',
+                '.pv-entity__location',
+            ]
 
-            if addresses:
-                filtered_addresses = []
-                for addr in addresses:
-                    if not any(keyword in addr.lower() for keyword in ['followers', 'following', 'posted', 'likes', 'comments']):
-                        addr = re.sub(r'Get directions', '', addr, flags=re.IGNORECASE)
-                        addr = re.sub(r'^Primary', '', addr, flags=re.IGNORECASE)
-                        addr = addr.strip()
-                        if addr:
-                            filtered_addresses.append(addr)
-
-                unique_addresses = []
-                seen = set()
-                for addr in filtered_addresses:
-                    addr_lower = addr.lower()
-                    if addr_lower not in seen:
-                        unique_addresses.append(addr)
-                        seen.add(addr_lower)
-
-                if unique_addresses:
-                    if len(unique_addresses) == 1:
-                        return unique_addresses[0]
-                    else:
-                        return "\n".join(unique_addresses)
+            for selector in location_selectors:
+                elements = soup.select(selector)
+                for element in elements:
+                    text_content = element.get_text(strip=True)
+                    if text_content and len(text_content) > 5:
+                        address = self._extract_address_from_text(text_content)
+                        if address:
+                            logger.info(f"Found address from selector {selector}: {address}")
+                            return address
 
             return None
 
         except Exception as e:
             logger.error(f"Error extracting LinkedIn address: {str(e)}")
             return None
-
-    def _clean_address(self, address: str) -> str:
-        address = re.sub(r'Get directions', '', address, flags=re.IGNORECASE)
-        address = re.sub(r'^Primary', '', address, flags=re.IGNORECASE)
-        address = re.sub(r'\s+', ' ', address)
-        address = re.sub(r';+$', '', address)
-        return address.strip()
 
 
 class InstagramParser(SocialPlatformParser):
@@ -371,32 +238,29 @@ class InstagramParser(SocialPlatformParser):
     def parse(self, url: str) -> Dict[str, Optional[str]]:
         logger.info(f"Parsing Instagram profile: {url}")
 
-        # Try to fetch using requests first (faster)
         page_content = self._fetch_page(url)
 
-        if page_content:
-            soup = BeautifulSoup(page_content, 'html.parser')
-            text = soup.get_text()
-
-            email = self._extract_email(text)
-            phone = self._extract_phone(text)
-            address = self._extract_address_from_text(text)
-
-            if address:
-                address = self._format_address_with_proper_spacing(address)
-
-            logger.info(f"Instagram extraction - Phone: {phone}, Email: {email}, Address: {address}")
-
+        if not page_content:
             return {
-                'phone': phone if phone else 'Not found',
-                'email': email if email else 'Not found',
-                'office': address if address else 'Not found'
+                'phone': 'Not found',
+                'email': 'Not found',
+                'office': 'Not found'
             }
 
+        soup = BeautifulSoup(page_content, 'html.parser')
+        text = soup.get_text()
+
+        email = self._extract_email(text)
+        phone = self._extract_phone(text)
+        address = self._extract_address_from_text(text)
+
+        if address:
+            address = self._format_address_with_proper_spacing(address)
+
         return {
-            'phone': 'Not found',
-            'email': 'Not found',
-            'office': 'Not found'
+            'phone': phone if phone else 'Not found',
+            'email': email if email else 'Not found',
+            'office': address if address else 'Not found'
         }
 
 
@@ -404,7 +268,7 @@ class FacebookParser(SocialPlatformParser):
     def parse(self, url: str) -> Dict[str, Optional[str]]:
         logger.info(f"Parsing Facebook profile: {url}")
 
-        page_content = self._fetch_with_selenium(url, wait_time=20)
+        page_content = self._fetch_page(url)
 
         if not page_content:
             return {
@@ -430,6 +294,9 @@ class FacebookParser(SocialPlatformParser):
                     break
             if address:
                 break
+
+        if not address:
+            address = self._extract_address_from_text(text)
 
         if address:
             address = self._format_address_with_proper_spacing(address)
@@ -471,6 +338,9 @@ class TwitterParser(SocialPlatformParser):
                     break
             if address:
                 break
+
+        if not address:
+            address = self._extract_address_from_text(text)
 
         if address:
             address = self._format_address_with_proper_spacing(address)
