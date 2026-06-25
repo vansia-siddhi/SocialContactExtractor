@@ -10,6 +10,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 import time
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -36,29 +37,34 @@ class SocialPlatformParser:
             return None
 
     def _fetch_with_selenium(self, url: str, wait_time: int = 15) -> Optional[str]:
-        """Fetch page content using Selenium with better waiting"""
+        """Fetch page content using Selenium with Render compatibility"""
         driver = None
         try:
-            from webdriver_manager.chrome import ChromeDriverManager
             from selenium.webdriver.chrome.service import Service
 
             chrome_options = Options()
+
+            # Essential for Render/Linux environment
             chrome_options.add_argument("--headless")
             chrome_options.add_argument("--no-sandbox")
             chrome_options.add_argument("--disable-dev-shm-usage")
             chrome_options.add_argument("--disable-gpu")
             chrome_options.add_argument("--window-size=1920,1080")
             chrome_options.add_argument("--disable-blink-features=AutomationControlled")
-            chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
-            chrome_options.add_experimental_option('useAutomationExtension', False)
+            chrome_options.add_argument("--remote-debugging-port=9222")
 
-            service = Service(ChromeDriverManager().install())
+            # Set Chrome binary path for Render
+            chrome_options.binary_location = "/usr/bin/google-chrome"
+
+            # Create service with ChromeDriver path for Render
+            service = Service("/usr/local/bin/chromedriver")
+
             driver = webdriver.Chrome(service=service, options=chrome_options)
             driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
 
             driver.get(url)
 
-            # Wait for page to load with longer timeout
+            # Wait for page to load
             time.sleep(5)
             wait = WebDriverWait(driver, wait_time)
             wait.until(EC.presence_of_element_located((By.TAG_NAME, "body")))
@@ -83,7 +89,7 @@ class SocialPlatformParser:
     def _fetch_instagram_with_visible_browser(self, url: str) -> Optional[dict]:
         """
         Fetch Instagram profile using visible browser (non-headless)
-        User must be logged in to Instagram for this to work
+        Note: For Render, this runs in headless mode
         """
         driver = None
         result = {
@@ -94,47 +100,34 @@ class SocialPlatformParser:
         }
 
         try:
-            from webdriver_manager.chrome import ChromeDriverManager
             from selenium.webdriver.chrome.service import Service
 
             chrome_options = Options()
-            # DON'T use headless - Instagram detects it
-            # chrome_options.add_argument("--headless")
+
+            # For Render - headless mode
+            chrome_options.add_argument("--headless")
             chrome_options.add_argument("--no-sandbox")
             chrome_options.add_argument("--disable-dev-shm-usage")
             chrome_options.add_argument("--disable-gpu")
             chrome_options.add_argument("--window-size=1280,1024")
             chrome_options.add_argument("--disable-blink-features=AutomationControlled")
-            chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
-            chrome_options.add_experimental_option('useAutomationExtension', False)
+            chrome_options.add_argument("--remote-debugging-port=9222")
 
-            service = Service(ChromeDriverManager().install())
+            # Set Chrome binary path for Render
+            chrome_options.binary_location = "/usr/bin/google-chrome"
+
+            # Create service with ChromeDriver path for Render
+            service = Service("/usr/local/bin/chromedriver")
+
             driver = webdriver.Chrome(service=service, options=chrome_options)
             driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
 
-            logger.info("Opening Instagram profile in browser...")
+            logger.info("Opening Instagram profile...")
             driver.get(url)
 
             # Wait for page to load
             time.sleep(5)
             wait = WebDriverWait(driver, 30)
-
-            # Check if we're on login page
-            current_url = driver.current_url
-            if "login" in current_url or "accounts/login" in current_url:
-                logger.warning("=" * 60)
-                logger.warning("Instagram LOGIN REQUIRED!")
-                logger.warning("Please login to Instagram in the browser window that opened.")
-                logger.warning("You have 60 seconds to login manually.")
-                logger.warning("=" * 60)
-
-                # Wait for user to login (60 seconds)
-                time.sleep(60)
-
-                # Refresh the page after login
-                logger.info("Refreshing page after login...")
-                driver.refresh()
-                time.sleep(5)
 
             # Wait for profile to load
             try:
@@ -149,18 +142,15 @@ class SocialPlatformParser:
             driver.execute_script("window.scrollTo(0, 0);")
             time.sleep(2)
 
-            # Try multiple methods to find Contact button
+            # Try to find Contact button
             contact_found = False
 
-            # Method 1: Look for Contact button
             contact_selectors = [
                 "//button[contains(text(), 'Contact')]",
                 "//div[contains(text(), 'Contact')]",
                 "//span[contains(text(), 'Contact')]",
                 "//button[contains(@aria-label, 'Contact')]",
                 "//div[@role='button' and contains(text(), 'Contact')]",
-                "//a[contains(text(), 'Contact')]",
-                "//button[contains(@class, 'x1i10hfl')]//span[contains(text(), 'Contact')]",
             ]
 
             contact_button = None
@@ -170,107 +160,106 @@ class SocialPlatformParser:
                     for element in elements:
                         if element and element.is_displayed():
                             contact_button = element
-                            logger.info(f"Found Contact button")
+                            logger.info("Found Contact button")
                             break
                     if contact_button:
                         break
                 except:
                     continue
 
-            # If Contact button found, click it
             if contact_button:
                 try:
                     logger.info("Clicking Contact button...")
                     driver.execute_script("arguments[0].click();", contact_button)
-                    time.sleep(3)
+                    time.sleep(5)
                     contact_found = True
                 except Exception as e:
                     logger.error(f"Error clicking Contact button: {str(e)}")
 
-            # Try to find contact links (mailto: or tel:)
-            if not contact_found:
+            # If Contact button clicked, look for contact info
+            if contact_found:
+                logger.info("Looking for contact information...")
+
                 try:
-                    contact_links = driver.find_elements(By.XPATH, "//a[contains(@href, 'mailto:') or contains(@href, 'tel:')]")
-                    if contact_links:
-                        logger.info("Found contact links directly")
-                        for link in contact_links:
-                            href = link.get_attribute('href')
-                            if href:
-                                if 'mailto:' in href:
-                                    result['email'] = href.replace('mailto:', '').strip()
-                                    logger.info(f"Found email: {result['email']}")
-                                elif 'tel:' in href:
-                                    result['phone'] = href.replace('tel:', '').strip()
-                                    logger.info(f"Found phone: {result['phone']}")
-                except:
-                    pass
-
-            # Get page source
-            page_source = driver.page_source
-            soup = BeautifulSoup(page_source, 'html.parser')
-            text = soup.get_text()
-
-            # Extract data from page
-            if not result['email']:
-                email = self._extract_email(text)
-                if email:
-                    result['email'] = email
-                    logger.info(f"Found email: {email}")
-
-            if not result['phone']:
-                phone = self._extract_phone(text)
-                if phone:
-                    result['phone'] = phone
-                    logger.info(f"Found phone: {phone}")
-
-            # Extract address
-            address = self._extract_address_from_text(text)
-            if address:
-                result['address'] = address
-                logger.info(f"Found address: {address}")
-
-            # Try specific address selectors
-            if not result['address']:
-                address_selectors = [
-                    "//div[contains(text(), 'Address')]/following-sibling::div",
-                    "//div[contains(text(), 'Address')]/following-sibling::span",
-                    "//span[contains(text(), 'Address')]/following-sibling::span",
-                    "//div[contains(text(), 'Floor')]",
-                    "//div[contains(text(), 'Tower')]",
-                    "//div[contains(text(), 'Building')]",
-                    "//div[contains(text(), 'Society')]",
-                    "//div[contains(text(), 'Surat')]",
-                    "//div[contains(text(), 'Gujarat')]",
-                    "//span[contains(text(), 'Surat')]",
-                ]
-
-                for selector in address_selectors:
+                    # Try to find the modal
+                    modal = None
                     try:
-                        elements = driver.find_elements(By.XPATH, selector)
-                        for element in elements:
-                            text_content = element.text.strip()
-                            if text_content and len(text_content) > 10:
-                                if any(keyword in text_content.lower() for keyword in
-                                       ['road', 'street', 'tower', 'building', 'floor', 'society',
-                                        'surat', 'mumbai', 'ahmedabad', 'gujarat', 'complex', 'meridian']):
-                                    result['address'] = text_content
-                                    logger.info(f"Found address: {text_content}")
-                                    break
-                        if result['address']:
-                            break
+                        modal = driver.find_element(By.XPATH, "//div[@role='dialog']")
+                        logger.info("Found modal dialog")
                     except:
-                        continue
+                        pass
+
+                    if modal:
+                        modal_text = modal.text
+                        logger.info(f"Modal text: {modal_text}")
+
+                        # Extract email
+                        email = self._extract_email(modal_text)
+                        if email:
+                            result['email'] = email
+                            logger.info(f"Found email: {email}")
+
+                        # Extract phone
+                        phone = self._extract_phone(modal_text)
+                        if phone:
+                            result['phone'] = phone
+                            logger.info(f"Found phone: {phone}")
+
+                        # Extract address
+                        address = self._extract_address_from_text(modal_text)
+                        if address:
+                            result['address'] = address
+                            logger.info(f"Found address: {address}")
+
+                        # If no address found, try line by line
+                        if not result['address']:
+                            lines = modal_text.split('\n')
+                            for line in lines:
+                                line = line.strip()
+                                if line and len(line) > 10:
+                                    if any(keyword in line.lower() for keyword in
+                                           ['floor', 'tower', 'building', 'society', 'road', 'street',
+                                            'surat', 'gujarat', 'meridian', 'complex']):
+                                        result['address'] = line
+                                        logger.info(f"Found address from line: {line}")
+                                        break
+                except Exception as e:
+                    logger.error(f"Error extracting from modal: {str(e)}")
+
+            # If no contact button or no data, try direct extraction
+            if not contact_found or not result['phone'] and not result['email'] and not result['address']:
+                logger.info("Trying direct extraction...")
+                page_source = driver.page_source
+                soup = BeautifulSoup(page_source, 'html.parser')
+                text = soup.get_text()
+
+                email = self._extract_email(text)
+                if email and not result['email']:
+                    result['email'] = email
+                    logger.info(f"Found email from page: {email}")
+
+                phone = self._extract_phone(text)
+                if phone and not result['phone']:
+                    result['phone'] = phone
+                    logger.info(f"Found phone from page: {phone}")
+
+                address = self._extract_address_from_text(text)
+                if address and not result['address']:
+                    result['address'] = address
+                    logger.info(f"Found address from page: {address}")
+
+            # Log final results
+            logger.info(f"Final data - Phone: {result['phone']}, Email: {result['email']}, Address: {result['address']}")
 
             # Get final page source
             result['page_source'] = driver.page_source
-
-            logger.info("Closing browser in 5 seconds...")
-            time.sleep(5)
 
             return result
 
         except Exception as e:
             logger.error(f"Error in Instagram fetch: {str(e)}")
+            import traceback
+            traceback.print_exc()
             return result
         finally:
             if driver:
@@ -313,7 +302,7 @@ class SocialPlatformParser:
         return None
 
     def _extract_address_from_text(self, text: str) -> Optional[str]:
-        """Extract address from text with more patterns"""
+        """Extract address from text"""
         address_patterns = [
             r'\d{1,5}\s+[\w\s,]+(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Lane|Ln|Drive|Dr|Way|Place|Pl|Court|Ct|Park|Pkwy)',
             r'[\w\s,]+(?:Tower|Building|Complex|Park|Centre|Center|Office|House|Society|Apartment|Flats|Floor|Corner|Meridian)',
@@ -346,7 +335,14 @@ class SocialPlatformParser:
     def _is_bio_text(self, text: str) -> bool:
         """Check if text is likely bio/description text (not address)"""
         text_lower = text.lower()
-        bio_keywords = ['excellence', 'innovation', 'product', 'engineering', 'development', 'software', 'solutions', 'services', 'technology', 'digital', 'transformation', 'consulting', 'agency', 'creative', 'design', 'marketing', 'brand', 'strategy', 'management', 'business', 'consultant', 'professional', 'expert', 'leader', 'vision', 'mission', 'culture', 'values', 'team', 'work', 'career', 'opportunity', 'growth', 'success', 'quality', 'commitment', 'passion', 'dedicated', 'experienced', 'specialized', 'providing', 'delivering', 'helping', 'building', 'creating', 'driving', 'leading', 'ui/ux', 'e-commerce', 'cms', 'web']
+        bio_keywords = ['excellence', 'innovation', 'product', 'engineering', 'development', 'software',
+                        'solutions', 'services', 'technology', 'digital', 'transformation', 'consulting',
+                        'agency', 'creative', 'design', 'marketing', 'brand', 'strategy', 'management',
+                        'business', 'consultant', 'professional', 'expert', 'leader', 'vision', 'mission',
+                        'culture', 'values', 'team', 'work', 'career', 'opportunity', 'growth', 'success',
+                        'quality', 'commitment', 'passion', 'dedicated', 'experienced', 'specialized',
+                        'providing', 'delivering', 'helping', 'building', 'creating', 'driving', 'leading',
+                        'ui/ux', 'e-commerce', 'cms', 'web']
 
         for keyword in bio_keywords:
             if keyword in text_lower:
@@ -530,12 +526,11 @@ class LinkedInParser(SocialPlatformParser):
 
 
 class InstagramParser(SocialPlatformParser):
-    """Parser for Instagram profiles - Uses visible browser (requires login)"""
+    """Parser for Instagram profiles"""
 
     def parse(self, url: str) -> Dict[str, Optional[str]]:
         logger.info(f"Parsing Instagram profile: {url}")
 
-        # Use visible browser to fetch Instagram
         result = self._fetch_instagram_with_visible_browser(url)
 
         if not result or not result.get('page_source'):
@@ -546,314 +541,18 @@ class InstagramParser(SocialPlatformParser):
                 'office': 'Not found'
             }
 
-        # Get data from result
         phone = result.get('phone')
         email = result.get('email')
         address = result.get('address')
 
-        # Clean up phone number format
-        if phone and phone != 'Not found':
-            # Remove any non-digit characters except +
-            phone = re.sub(r'[^0-9+]', '', phone)
-            if len(phone) == 10 and phone.isdigit():
-                phone = f"+91 {phone[:5]} {phone[5:]}"
-            elif len(phone) == 11 and phone.startswith('0'):
-                phone = f"+91 {phone[1:6]} {phone[6:]}"
-            elif len(phone) == 12 and phone.startswith('91'):
-                phone = f"+91 {phone[2:7]} {phone[7:]}"
-
-        # Clean up address
         if address and address != 'Not found':
-            # Remove "more" if it appears at the beginning
-            address = re.sub(r'^more\s*', '', address, flags=re.IGNORECASE)
-            # Fix "3 rd" to "3rd"
-            address = re.sub(r'(\d+)\s+rd', r'\1rd', address, flags=re.IGNORECASE)
-            # Fix "3 rd Floor" to "3rd Floor"
-            address = re.sub(r'(\d+)\s+rd\s+Floor', r'\1rd Floor', address, flags=re.IGNORECASE)
-            address = address.strip()
-
-        # Format address if found
-        if address and address != 'Not found' and len(address) > 5:
             address = self._format_address_with_proper_spacing(address)
-
-        logger.info(f"Final extracted data - Phone: {phone}, Email: {email}, Address: {address}")
 
         return {
             'phone': phone if phone else 'Not found',
             'email': email if email else 'Not found',
             'office': address if address else 'Not found'
         }
-
-    def _fetch_instagram_with_visible_browser(self, url: str) -> Optional[dict]:
-        """
-        Fetch Instagram profile using visible browser (non-headless)
-        User must be logged in to Instagram for this to work
-        """
-        driver = None
-        result = {
-            'page_source': None,
-            'phone': None,
-            'email': None,
-            'address': None
-        }
-
-        try:
-            from webdriver_manager.chrome import ChromeDriverManager
-            from selenium.webdriver.chrome.service import Service
-
-            chrome_options = Options()
-            # DON'T use headless - Instagram detects it
-            chrome_options.add_argument("--no-sandbox")
-            chrome_options.add_argument("--disable-dev-shm-usage")
-            chrome_options.add_argument("--disable-gpu")
-            chrome_options.add_argument("--window-size=1280,1024")
-            chrome_options.add_argument("--disable-blink-features=AutomationControlled")
-            chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
-            chrome_options.add_experimental_option('useAutomationExtension', False)
-
-            service = Service(ChromeDriverManager().install())
-            driver = webdriver.Chrome(service=service, options=chrome_options)
-            driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
-
-            logger.info("Opening Instagram profile in browser...")
-            driver.get(url)
-
-            # Wait for page to load
-            time.sleep(5)
-            wait = WebDriverWait(driver, 30)
-
-            # Check if we're on login page
-            current_url = driver.current_url
-            if "login" in current_url or "accounts/login" in current_url:
-                logger.warning("=" * 60)
-                logger.warning("Instagram LOGIN REQUIRED!")
-                logger.warning("Please login to Instagram in the browser window that opened.")
-                logger.warning("You have 60 seconds to login manually.")
-                logger.warning("=" * 60)
-
-                # Wait for user to login (60 seconds)
-                time.sleep(60)
-
-                # Refresh the page after login
-                logger.info("Refreshing page after login...")
-                driver.refresh()
-                time.sleep(5)
-
-            # Wait for profile to load
-            try:
-                wait.until(EC.presence_of_element_located((By.TAG_NAME, "body")))
-                time.sleep(3)
-            except:
-                pass
-
-            # Scroll to load content
-            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            time.sleep(2)
-            driver.execute_script("window.scrollTo(0, 0);")
-            time.sleep(2)
-
-            # Try multiple methods to find and click Contact button
-            contact_found = False
-
-            # Method 1: Look for Contact button
-            contact_selectors = [
-                "//button[contains(text(), 'Contact')]",
-                "//div[contains(text(), 'Contact')]",
-                "//span[contains(text(), 'Contact')]",
-                "//button[contains(@aria-label, 'Contact')]",
-                "//div[@role='button' and contains(text(), 'Contact')]",
-                "//a[contains(text(), 'Contact')]",
-                "//button[contains(@class, 'x1i10hfl')]//span[contains(text(), 'Contact')]",
-                "//div[contains(@class, 'x1i10hfl')]//span[contains(text(), 'Contact')]",
-                "//button[contains(@class, '_acan')]//span[contains(text(), 'Contact')]",
-                "//div[contains(@class, '_acan')]//span[contains(text(), 'Contact')]",
-                "//button[contains(@class, 'x1i10hfl') and contains(., 'Contact')]",
-                "//div[contains(@class, 'x1i10hfl') and contains(., 'Contact')]",
-                # Try to find by aria-label
-                "//button[@aria-label='Contact']",
-                "//div[@aria-label='Contact']",
-            ]
-
-            contact_button = None
-            for selector in contact_selectors:
-                try:
-                    elements = driver.find_elements(By.XPATH, selector)
-                    for element in elements:
-                        if element and element.is_displayed():
-                            contact_button = element
-                            logger.info(f"Found Contact button")
-                            break
-                    if contact_button:
-                        break
-                except Exception as e:
-                    continue
-
-            # If Contact button found, click it
-            if contact_button:
-                try:
-                    logger.info("Clicking Contact button...")
-                    # Click using JavaScript to ensure it works
-                    driver.execute_script("arguments[0].click();", contact_button)
-                    time.sleep(5)  # Wait for modal to appear
-                    contact_found = True
-                except Exception as e:
-                    logger.error(f"Error clicking Contact button: {str(e)}")
-
-            # If Contact button clicked, look for contact info
-            if contact_found:
-                logger.info("Looking for contact information...")
-
-                try:
-                    # Try to find the modal
-                    modal = None
-                    try:
-                        modal = driver.find_element(By.XPATH, "//div[@role='dialog']")
-                        logger.info("Found modal dialog")
-                    except:
-                        # Try to find the contact info section
-                        try:
-                            modal = driver.find_element(By.XPATH, "//div[contains(@class, 'x1n2onr6')]//div[contains(text(), 'Email')]/..")
-                            logger.info("Found contact info section")
-                        except:
-                            pass
-
-                    # If we found the modal or contact section, extract data
-                    if modal:
-                        # Get all text from the modal
-                        modal_text = modal.text
-                        logger.info(f"Modal text: {modal_text}")
-
-                        # Extract email
-                        email = self._extract_email(modal_text)
-                        if email:
-                            result['email'] = email
-                            logger.info(f"Found email: {email}")
-
-                        # Extract phone
-                        phone = self._extract_phone(modal_text)
-                        if phone:
-                            result['phone'] = phone
-                            logger.info(f"Found phone: {phone}")
-
-                        # Extract address - look for specific patterns
-                        address = self._extract_address_from_text(modal_text)
-                        if address:
-                            result['address'] = address
-                            logger.info(f"Found address: {address}")
-
-                        # If no address found, try to find it from modal text
-                        if not result['address']:
-                            # Look for address patterns in modal
-                            lines = modal_text.split('\n')
-                            for line in lines:
-                                line = line.strip()
-                                if line and len(line) > 10:
-                                    # Check if it looks like an address
-                                    if any(keyword in line.lower() for keyword in
-                                           ['floor', 'tower', 'building', 'society', 'road', 'street',
-                                            'surat', 'gujarat', 'meridian', 'complex', 'avenue', 'lane']):
-                                        result['address'] = line
-                                        logger.info(f"Found address from line: {line}")
-                                        break
-
-                    # If modal not found or no data, try direct extraction from page
-                    if not result['phone'] and not result['email'] and not result['address']:
-                        logger.info("No data found in modal, trying direct extraction...")
-                        page_source = driver.page_source
-                        soup = BeautifulSoup(page_source, 'html.parser')
-                        text = soup.get_text()
-
-                        # Extract email
-                        email = self._extract_email(text)
-                        if email:
-                            result['email'] = email
-                            logger.info(f"Found email from page: {email}")
-
-                        # Extract phone
-                        phone = self._extract_phone(text)
-                        if phone:
-                            result['phone'] = phone
-                            logger.info(f"Found phone from page: {phone}")
-
-                        # Extract address
-                        address = self._extract_address_from_text(text)
-                        if address:
-                            result['address'] = address
-                            logger.info(f"Found address from page: {address}")
-
-                        # If still no address, look for specific patterns in text
-                        if not result['address']:
-                            lines = text.split('\n')
-                            for line in lines:
-                                line = line.strip()
-                                if line and len(line) > 10:
-                                    if any(keyword in line.lower() for keyword in
-                                           ['floor', 'tower', 'building', 'society', 'road', 'street',
-                                            'surat', 'gujarat', 'meridian', 'complex']):
-                                        result['address'] = line
-                                        logger.info(f"Found address from page line: {line}")
-                                        break
-
-                except Exception as e:
-                    logger.error(f"Error extracting from modal: {str(e)}")
-
-            # If no contact button found or no data extracted, try direct extraction
-            if not contact_found or not result['phone'] and not result['email'] and not result['address']:
-                logger.info("Contact button not found or no data, trying direct extraction...")
-                page_source = driver.page_source
-                soup = BeautifulSoup(page_source, 'html.parser')
-                text = soup.get_text()
-
-                # Try to find email
-                email = self._extract_email(text)
-                if email and not result['email']:
-                    result['email'] = email
-                    logger.info(f"Found email from page: {email}")
-
-                # Try to find phone
-                phone = self._extract_phone(text)
-                if phone and not result['phone']:
-                    result['phone'] = phone
-                    logger.info(f"Found phone from page: {phone}")
-
-                # Try to find address
-                address = self._extract_address_from_text(text)
-                if address and not result['address']:
-                    result['address'] = address
-                    logger.info(f"Found address from page: {address}")
-
-                # If still no address, look for specific patterns
-                if not result['address']:
-                    lines = text.split('\n')
-                    for line in lines:
-                        line = line.strip()
-                        if line and len(line) > 10:
-                            if any(keyword in line.lower() for keyword in
-                                   ['floor', 'tower', 'building', 'society', 'road', 'street',
-                                    'surat', 'gujarat', 'meridian', 'complex']):
-                                result['address'] = line
-                                logger.info(f"Found address from line: {line}")
-                                break
-
-            # Log final results
-            logger.info(f"Final extracted data - Phone: {result['phone']}, Email: {result['email']}, Address: {result['address']}")
-
-            # Get final page source
-            result['page_source'] = driver.page_source
-
-            logger.info("Closing browser in 5 seconds...")
-            time.sleep(5)
-
-            return result
-
-        except Exception as e:
-            logger.error(f"Error in Instagram fetch: {str(e)}")
-            import traceback
-            traceback.print_exc()
-            return result
-        finally:
-            if driver:
-                driver.quit()
 
 
 class FacebookParser(SocialPlatformParser):

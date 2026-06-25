@@ -3,7 +3,7 @@ from flask_cors import CORS
 from backend.extractor import ContactExtractor
 import logging
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 
 # Configure logging
 logging.basicConfig(
@@ -58,7 +58,7 @@ def extract_contacts():
             'data': contacts,
             'platform': platform,
             'url': url,
-            'timestamp': datetime.utcnow().isoformat()
+            'timestamp': datetime.now(timezone.utc).isoformat()
         }), 200
 
     except Exception as e:
@@ -73,7 +73,7 @@ def health_check():
     """Health check endpoint"""
     return jsonify({
         'status': 'healthy',
-        'timestamp': datetime.utcnow().isoformat()
+        'timestamp': datetime.now(timezone.utc).isoformat()
     }), 200
 
 if __name__ == '__main__':
@@ -81,5 +81,8 @@ if __name__ == '__main__':
     os.makedirs('logs', exist_ok=True)
     os.makedirs('data', exist_ok=True)
 
+    # Get port from environment variable (Render sets this)
+    port = int(os.environ.get('PORT', 5000))
+
     # Run the app
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=False, host='0.0.0.0', port=port)

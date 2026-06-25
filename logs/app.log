@@ -1978,3 +1978,67 @@ Log In
 2026-06-25 15:06:23,456 - backend.social_platforms - INFO - Final extracted data - Phone: +919023813983, Email: hr@codesdot.com, Address: 301, 3 rd Floor, Meridian Tower
 2026-06-25 15:06:23,460 - backend.extractor - INFO - Extracted contacts using instagram parser
 2026-06-25 15:06:23,464 - werkzeug - INFO - 192.168.29.51 - - [25/Jun/2026 15:06:23] "POST /api/extract HTTP/1.1" 200 -
+2026-06-25 15:18:48,506 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.29.51:5000
+2026-06-25 15:18:48,507 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2026-06-25 15:18:48,509 - werkzeug - INFO -  * Restarting with stat
+2026-06-25 15:18:49,184 - werkzeug - WARNING -  * Debugger is active!
+2026-06-25 15:18:49,188 - werkzeug - INFO -  * Debugger PIN: 265-937-598
+2026-06-25 15:18:50,289 - werkzeug - INFO - 127.0.0.1 - - [25/Jun/2026 15:18:50] "GET / HTTP/1.1" 200 -
+2026-06-25 15:18:50,436 - werkzeug - INFO - 127.0.0.1 - - [25/Jun/2026 15:18:50] "GET /static/css/style.css HTTP/1.1" 200 -
+2026-06-25 15:18:50,446 - werkzeug - INFO - 127.0.0.1 - - [25/Jun/2026 15:18:50] "GET /static/js/app.js HTTP/1.1" 200 -
+2026-06-25 15:18:50,465 - werkzeug - INFO - 127.0.0.1 - - [25/Jun/2026 15:18:50] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2026-06-25 15:18:51,435 - werkzeug - INFO - 127.0.0.1 - - [25/Jun/2026 15:18:51] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-06-25 15:19:02,631 - __main__ - INFO - Extracting contacts from: https://www.instagram.com/narolainfotech/
+2026-06-25 15:19:02,631 - backend.social_platforms - INFO - Parsing Instagram profile: https://www.instagram.com/narolainfotech/
+2026-06-25 15:19:02,681 - WDM - INFO - ====== WebDriver manager ======
+2026-06-25 15:19:03,749 - WDM - INFO - Driver [C:\Users\01\.wdm\drivers\chromedriver\win64\149.0.7827.155\chromedriver-win64/chromedriver.exe] found in cache by browser version
+2026-06-25 15:19:05,425 - backend.social_platforms - INFO - Opening Instagram profile in browser...
+2026-06-25 15:19:11,374 - backend.social_platforms - WARNING - ============================================================
+2026-06-25 15:19:11,374 - backend.social_platforms - WARNING - Instagram LOGIN REQUIRED!
+2026-06-25 15:19:11,374 - backend.social_platforms - WARNING - Please login to Instagram in the browser window that opened.
+2026-06-25 15:19:11,375 - backend.social_platforms - WARNING - You have 60 seconds to login manually.
+2026-06-25 15:19:11,375 - backend.social_platforms - WARNING - ============================================================
+2026-06-25 15:20:11,375 - backend.social_platforms - INFO - Refreshing page after login...
+2026-06-25 15:20:24,313 - backend.social_platforms - INFO - Found Contact button
+2026-06-25 15:20:24,313 - backend.social_platforms - INFO - Clicking Contact button...
+2026-06-25 15:20:29,365 - backend.social_platforms - INFO - Looking for contact information...
+2026-06-25 15:20:29,395 - backend.social_platforms - INFO - No data found in modal, trying direct extraction...
+2026-06-25 15:20:29,633 - backend.social_platforms - INFO - Found address from page: 117 posts3,408 followers6 followingInformation Technology Company20 Years of Excellence in Product
+2026-06-25 15:20:29,633 - backend.social_platforms - INFO - Final extracted data - Phone: None, Email: None, Address: 117 posts3,408 followers6 followingInformation Technology Company20 Years of Excellence in Product
+2026-06-25 15:20:29,779 - backend.social_platforms - INFO - Closing browser in 5 seconds...
+2026-06-25 15:20:37,068 - backend.social_platforms - INFO - Final extracted data - Phone: None, Email: None, Address: None
+2026-06-25 15:20:37,070 - backend.extractor - INFO - Extracted contacts using instagram parser
+2026-06-25 15:20:37,074 - werkzeug - INFO - 127.0.0.1 - - [25/Jun/2026 15:20:37] "POST /api/extract HTTP/1.1" 200 -
+2026-06-25 15:23:20,259 - werkzeug - INFO -  * Detected change in 'C:\\Users\\01\\IdeaProjects\\HelloWorld\\SocialContactExtractor\\streamlit_app.py', reloading
+2026-06-25 15:23:20,422 - werkzeug - INFO -  * Restarting with stat
+2026-06-25 15:23:21,568 - werkzeug - WARNING -  * Debugger is active!
+2026-06-25 15:23:21,573 - werkzeug - INFO -  * Debugger PIN: 265-937-598
+2026-06-25 15:26:43,986 - werkzeug - INFO -  * Detected change in 'C:\\Users\\01\\IdeaProjects\\HelloWorld\\SocialContactExtractor\\streamlit_app.py', reloading
+2026-06-25 15:26:44,177 - werkzeug - INFO -  * Restarting with stat
+2026-06-25 15:26:45,021 - werkzeug - WARNING -  * Debugger is active!
+2026-06-25 15:26:45,026 - werkzeug - INFO -  * Debugger PIN: 265-937-598
+2026-06-25 15:32:36,409 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.29.51:5000
+2026-06-25 15:32:36,409 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2026-06-25 15:32:36,411 - werkzeug - INFO -  * Restarting with stat
+2026-06-25 15:32:37,121 - werkzeug - WARNING -  * Debugger is active!
+2026-06-25 15:32:37,125 - werkzeug - INFO -  * Debugger PIN: 265-937-598
+2026-06-25 15:32:38,226 - werkzeug - INFO - 192.168.29.51 - - [25/Jun/2026 15:32:38] "GET / HTTP/1.1" 200 -
+2026-06-25 15:32:38,376 - werkzeug - INFO - 192.168.29.51 - - [25/Jun/2026 15:32:38] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-06-25 15:32:38,396 - werkzeug - INFO - 192.168.29.51 - - [25/Jun/2026 15:32:38] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2026-06-25 15:32:38,445 - werkzeug - INFO - 192.168.29.51 - - [25/Jun/2026 15:32:38] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2026-06-25 15:32:39,373 - werkzeug - INFO - 192.168.29.51 - - [25/Jun/2026 15:32:39] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-06-25 15:32:45,257 - __main__ - INFO - Extracting contacts from: https://in.linkedin.com/company/codesdot-solution-llp
+2026-06-25 15:32:45,258 - backend.social_platforms - INFO - Parsing LinkedIn profile: https://in.linkedin.com/company/codesdot-solution-llp
+2026-06-25 15:32:45,309 - WDM - INFO - ====== WebDriver manager ======
+2026-06-25 15:32:46,244 - WDM - INFO - Driver [C:\Users\01\.wdm\drivers\chromedriver\win64\149.0.7827.155\chromedriver-win64/chromedriver.exe] found in cache by browser version
+2026-06-25 15:33:02,078 - backend.social_platforms - INFO - Found address-0: 301, 3rd floor,Meredian tower, Nr.UTC , Udhna DarwajaSurat, Gujarat 395002, IN
+2026-06-25 15:33:02,139 - backend.extractor - INFO - Extracted contacts using linkedin parser
+2026-06-25 15:33:02,140 - werkzeug - INFO - 192.168.29.51 - - [25/Jun/2026 15:33:02] "POST /api/extract HTTP/1.1" 200 -
+2026-06-25 15:37:42,602 - werkzeug - INFO -  * Detected change in 'C:\\Users\\01\\IdeaProjects\\HelloWorld\\SocialContactExtractor\\backend\\social_platforms.py', reloading
+2026-06-25 15:37:42,761 - werkzeug - INFO -  * Restarting with stat
