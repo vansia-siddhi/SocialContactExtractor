@@ -3,16 +3,25 @@ import requests
 from bs4 import BeautifulSoup
 from typing import Dict, Optional, List
 import logging
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.chrome.options import Options
-from selenium.common.exceptions import TimeoutException, NoSuchElementException
 import time
 import os
+import sys
 
 logger = logging.getLogger(__name__)
+
+# Try to import selenium, but handle gracefully if not available
+try:
+    from selenium import webdriver
+    from selenium.webdriver.common.by import By
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
+    from selenium.webdriver.chrome.options import Options
+    from selenium.webdriver.chrome.service import Service
+    from selenium.common.exceptions import TimeoutException, NoSuchElementException
+    SELENIUM_AVAILABLE = True
+except ImportError:
+    SELENIUM_AVAILABLE = False
+    logger.warning("Selenium not available. Some features will be limited.")
 
 class SocialPlatformParser:
     """Base class for social media platform parsers"""
@@ -29,7 +38,7 @@ class SocialPlatformParser:
     def _fetch_page(self, url: str) -> Optional[str]:
         """Fetch page content using requests"""
         try:
-            response = requests.get(url, headers=self.headers, timeout=10, verify=False)
+            response = requests.get(url, headers=self.headers, timeout=15, verify=False)
             response.raise_for_status()
             return response.text
         except Exception as e:
@@ -37,29 +46,65 @@ class SocialPlatformParser:
             return None
 
     def _fetch_with_selenium(self, url: str, wait_time: int = 15) -> Optional[str]:
-        """Fetch page content using Selenium with Render compatibility"""
+        """Fetch page content using Selenium"""
+        if not SELENIUM_AVAILABLE:
+            logger.warning("Selenium not available, falling back to requests")
+            return self._fetch_page(url)
+
         driver = None
         try:
-            from selenium.webdriver.chrome.service import Service
-
             chrome_options = Options()
 
-            # Essential for Render/Linux environment
+            # Common options for both local and Render
             chrome_options.add_argument("--headless")
             chrome_options.add_argument("--no-sandbox")
             chrome_options.add_argument("--disable-dev-shm-usage")
             chrome_options.add_argument("--disable-gpu")
             chrome_options.add_argument("--window-size=1920,1080")
             chrome_options.add_argument("--disable-blink-features=AutomationControlled")
-            chrome_options.add_argument("--remote-debugging-port=9222")
 
-            # Set Chrome binary path for Render
-            chrome_options.binary_location = "/usr/bin/google-chrome"
+            # Try multiple Chrome binary locations
+            chrome_paths = [
+                "/usr/bin/google-chrome",  # Render
+                "/usr/bin/chromium-browser",  # Render alternative
+                "/usr/bin/chromium",  # Some Linux
+                None  # Let webdriver-manager find it
+            ]
 
-            # Create service with ChromeDriver path for Render
-            service = Service("/usr/local/bin/chromedriver")
+            for chrome_path in chrome_paths:
+                if chrome_path and os.path.exists(chrome_path):
+                    chrome_options.binary_location = chrome_path
+                    logger.info(f"Using Chrome at: {chrome_path}")
+                    break
 
-            driver = webdriver.Chrome(service=service, options=chrome_options)
+            # Try multiple ChromeDriver paths
+            driver_paths = [
+                "/usr/local/bin/chromedriver",  # Render
+                None  # Let webdriver-manager find it
+            ]
+
+            service = None
+            for driver_path in driver_paths:
+                if driver_path and os.path.exists(driver_path):
+                    service = Service(driver_path)
+                    logger.info(f"Using ChromeDriver at: {driver_path}")
+                    break
+
+            if not service:
+                # Use webdriver-manager to find ChromeDriver
+                try:
+                    from webdriver_manager.chrome import ChromeDriverManager
+                    service = Service(ChromeDriverManager().install())
+                    logger.info("Using webdriver-manager for ChromeDriver")
+                except:
+                    # Fallback: try to create driver without service
+                    pass
+
+            if service:
+                driver = webdriver.Chrome(service=service, options=chrome_options)
+            else:
+                driver = webdriver.Chrome(options=chrome_options)
+
             driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
 
             driver.get(url)
@@ -69,201 +114,25 @@ class SocialPlatformParser:
             wait = WebDriverWait(driver, wait_time)
             wait.until(EC.presence_of_element_located((By.TAG_NAME, "body")))
 
-            # Scroll down to load more content
-            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            time.sleep(3)
-            driver.execute_script("window.scrollTo(0, 0);")
-            time.sleep(2)
-
-            # Get page source
-            page_source = driver.page_source
-            return page_source
-
-        except Exception as e:
-            logger.error(f"Error fetching {url} with Selenium: {str(e)}")
-            return None
-        finally:
-            if driver:
-                driver.quit()
-
-    def _fetch_instagram_with_visible_browser(self, url: str) -> Optional[dict]:
-        """
-        Fetch Instagram profile using visible browser (non-headless)
-        Note: For Render, this runs in headless mode
-        """
-        driver = None
-        result = {
-            'page_source': None,
-            'phone': None,
-            'email': None,
-            'address': None
-        }
-
-        try:
-            from selenium.webdriver.chrome.service import Service
-
-            chrome_options = Options()
-
-            # For Render - headless mode
-            chrome_options.add_argument("--headless")
-            chrome_options.add_argument("--no-sandbox")
-            chrome_options.add_argument("--disable-dev-shm-usage")
-            chrome_options.add_argument("--disable-gpu")
-            chrome_options.add_argument("--window-size=1280,1024")
-            chrome_options.add_argument("--disable-blink-features=AutomationControlled")
-            chrome_options.add_argument("--remote-debugging-port=9222")
-
-            # Set Chrome binary path for Render
-            chrome_options.binary_location = "/usr/bin/google-chrome"
-
-            # Create service with ChromeDriver path for Render
-            service = Service("/usr/local/bin/chromedriver")
-
-            driver = webdriver.Chrome(service=service, options=chrome_options)
-            driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
-
-            logger.info("Opening Instagram profile...")
-            driver.get(url)
-
-            # Wait for page to load
-            time.sleep(5)
-            wait = WebDriverWait(driver, 30)
-
-            # Wait for profile to load
-            try:
-                wait.until(EC.presence_of_element_located((By.TAG_NAME, "body")))
-                time.sleep(3)
-            except:
-                pass
-
             # Scroll to load content
             driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             time.sleep(2)
             driver.execute_script("window.scrollTo(0, 0);")
             time.sleep(2)
 
-            # Try to find Contact button
-            contact_found = False
-
-            contact_selectors = [
-                "//button[contains(text(), 'Contact')]",
-                "//div[contains(text(), 'Contact')]",
-                "//span[contains(text(), 'Contact')]",
-                "//button[contains(@aria-label, 'Contact')]",
-                "//div[@role='button' and contains(text(), 'Contact')]",
-            ]
-
-            contact_button = None
-            for selector in contact_selectors:
-                try:
-                    elements = driver.find_elements(By.XPATH, selector)
-                    for element in elements:
-                        if element and element.is_displayed():
-                            contact_button = element
-                            logger.info("Found Contact button")
-                            break
-                    if contact_button:
-                        break
-                except:
-                    continue
-
-            if contact_button:
-                try:
-                    logger.info("Clicking Contact button...")
-                    driver.execute_script("arguments[0].click();", contact_button)
-                    time.sleep(5)
-                    contact_found = True
-                except Exception as e:
-                    logger.error(f"Error clicking Contact button: {str(e)}")
-
-            # If Contact button clicked, look for contact info
-            if contact_found:
-                logger.info("Looking for contact information...")
-
-                try:
-                    # Try to find the modal
-                    modal = None
-                    try:
-                        modal = driver.find_element(By.XPATH, "//div[@role='dialog']")
-                        logger.info("Found modal dialog")
-                    except:
-                        pass
-
-                    if modal:
-                        modal_text = modal.text
-                        logger.info(f"Modal text: {modal_text}")
-
-                        # Extract email
-                        email = self._extract_email(modal_text)
-                        if email:
-                            result['email'] = email
-                            logger.info(f"Found email: {email}")
-
-                        # Extract phone
-                        phone = self._extract_phone(modal_text)
-                        if phone:
-                            result['phone'] = phone
-                            logger.info(f"Found phone: {phone}")
-
-                        # Extract address
-                        address = self._extract_address_from_text(modal_text)
-                        if address:
-                            result['address'] = address
-                            logger.info(f"Found address: {address}")
-
-                        # If no address found, try line by line
-                        if not result['address']:
-                            lines = modal_text.split('\n')
-                            for line in lines:
-                                line = line.strip()
-                                if line and len(line) > 10:
-                                    if any(keyword in line.lower() for keyword in
-                                           ['floor', 'tower', 'building', 'society', 'road', 'street',
-                                            'surat', 'gujarat', 'meridian', 'complex']):
-                                        result['address'] = line
-                                        logger.info(f"Found address from line: {line}")
-                                        break
-                except Exception as e:
-                    logger.error(f"Error extracting from modal: {str(e)}")
-
-            # If no contact button or no data, try direct extraction
-            if not contact_found or not result['phone'] and not result['email'] and not result['address']:
-                logger.info("Trying direct extraction...")
-                page_source = driver.page_source
-                soup = BeautifulSoup(page_source, 'html.parser')
-                text = soup.get_text()
-
-                email = self._extract_email(text)
-                if email and not result['email']:
-                    result['email'] = email
-                    logger.info(f"Found email from page: {email}")
-
-                phone = self._extract_phone(text)
-                if phone and not result['phone']:
-                    result['phone'] = phone
-                    logger.info(f"Found phone from page: {phone}")
-
-                address = self._extract_address_from_text(text)
-                if address and not result['address']:
-                    result['address'] = address
-                    logger.info(f"Found address from page: {address}")
-
-            # Log final results
-            logger.info(f"Final data - Phone: {result['phone']}, Email: {result['email']}, Address: {result['address']}")
-
-            # Get final page source
-            result['page_source'] = driver.page_source
-
-            return result
+            page_source = driver.page_source
+            return page_source
 
         except Exception as e:
-            logger.error(f"Error in Instagram fetch: {str(e)}")
-            import traceback
-            traceback.print_exc()
-            return result
+            logger.error(f"Error fetching {url} with Selenium: {str(e)}")
+            # Fallback to requests
+            return self._fetch_page(url)
         finally:
             if driver:
-                driver.quit()
+                try:
+                    driver.quit()
+                except:
+                    pass
 
     def _extract_email(self, text: str) -> Optional[str]:
         """Extract email from text"""
@@ -321,34 +190,6 @@ class SocialPlatformParser:
                     return address[:200]
         return None
 
-    def _is_follower_count(self, text: str) -> bool:
-        """Check if text is a follower/following/post count"""
-        text_lower = text.lower()
-        follower_keywords = ['followers', 'following', 'posts', 'post', 'likes', 'comments', 'views', 'reactions', 'shares']
-        for keyword in follower_keywords:
-            if keyword in text_lower:
-                return True
-        if re.search(r'[\d,]+[\s]+(?:followers|following|posts|post)', text_lower):
-            return True
-        return False
-
-    def _is_bio_text(self, text: str) -> bool:
-        """Check if text is likely bio/description text (not address)"""
-        text_lower = text.lower()
-        bio_keywords = ['excellence', 'innovation', 'product', 'engineering', 'development', 'software',
-                        'solutions', 'services', 'technology', 'digital', 'transformation', 'consulting',
-                        'agency', 'creative', 'design', 'marketing', 'brand', 'strategy', 'management',
-                        'business', 'consultant', 'professional', 'expert', 'leader', 'vision', 'mission',
-                        'culture', 'values', 'team', 'work', 'career', 'opportunity', 'growth', 'success',
-                        'quality', 'commitment', 'passion', 'dedicated', 'experienced', 'specialized',
-                        'providing', 'delivering', 'helping', 'building', 'creating', 'driving', 'leading',
-                        'ui/ux', 'e-commerce', 'cms', 'web']
-
-        for keyword in bio_keywords:
-            if keyword in text_lower:
-                return True
-        return False
-
     def _clean_and_format_single_address(self, address: str, address_num: int = None) -> str:
         """Clean and format a single address with proper spacing."""
         if not address:
@@ -390,7 +231,7 @@ class SocialPlatformParser:
             address_counter = 1
             for line in lines:
                 line = line.strip()
-                if line and not self._is_follower_count(line) and not self._is_bio_text(line):
+                if line:
                     formatted_line = self._clean_and_format_single_address(line, address_counter)
                     if formatted_line:
                         formatted_lines.append(formatted_line)
@@ -407,18 +248,15 @@ class SocialPlatformParser:
             for match in matches:
                 clean_addr = match.strip()
                 clean_addr = re.sub(r'Get directions', '', clean_addr, flags=re.IGNORECASE)
-                if not self._is_follower_count(clean_addr) and not self._is_bio_text(clean_addr):
-                    formatted_addr = self._clean_and_format_single_address(clean_addr, address_counter)
-                    if formatted_addr:
-                        formatted_addresses.append(formatted_addr)
-                        address_counter += 1
+                formatted_addr = self._clean_and_format_single_address(clean_addr, address_counter)
+                if formatted_addr:
+                    formatted_addresses.append(formatted_addr)
+                    address_counter += 1
 
             if formatted_addresses:
                 return '\n'.join(formatted_addresses)
 
-        if not self._is_follower_count(address) and not self._is_bio_text(address):
-            return self._clean_and_format_single_address(address)
-        return None
+        return self._clean_and_format_single_address(address)
 
 
 class LinkedInParser(SocialPlatformParser):
@@ -446,6 +284,8 @@ class LinkedInParser(SocialPlatformParser):
 
         if office and office != 'Not found':
             office = self._format_address_with_proper_spacing(office)
+
+        logger.info(f"LinkedIn extraction - Phone: {phone}, Email: {email}, Address: {office}")
 
         return {
             'phone': phone if phone else 'Not found',
@@ -490,7 +330,7 @@ class LinkedInParser(SocialPlatformParser):
             if addresses:
                 filtered_addresses = []
                 for addr in addresses:
-                    if not self._is_follower_count(addr):
+                    if not any(keyword in addr.lower() for keyword in ['followers', 'following', 'posted', 'likes', 'comments']):
                         addr = re.sub(r'Get directions', '', addr, flags=re.IGNORECASE)
                         addr = re.sub(r'^Primary', '', addr, flags=re.IGNORECASE)
                         addr = addr.strip()
@@ -531,27 +371,32 @@ class InstagramParser(SocialPlatformParser):
     def parse(self, url: str) -> Dict[str, Optional[str]]:
         logger.info(f"Parsing Instagram profile: {url}")
 
-        result = self._fetch_instagram_with_visible_browser(url)
+        # Try to fetch using requests first (faster)
+        page_content = self._fetch_page(url)
 
-        if not result or not result.get('page_source'):
-            logger.warning(f"Failed to fetch Instagram page: {url}")
+        if page_content:
+            soup = BeautifulSoup(page_content, 'html.parser')
+            text = soup.get_text()
+
+            email = self._extract_email(text)
+            phone = self._extract_phone(text)
+            address = self._extract_address_from_text(text)
+
+            if address:
+                address = self._format_address_with_proper_spacing(address)
+
+            logger.info(f"Instagram extraction - Phone: {phone}, Email: {email}, Address: {address}")
+
             return {
-                'phone': 'Not found',
-                'email': 'Not found',
-                'office': 'Not found'
+                'phone': phone if phone else 'Not found',
+                'email': email if email else 'Not found',
+                'office': address if address else 'Not found'
             }
 
-        phone = result.get('phone')
-        email = result.get('email')
-        address = result.get('address')
-
-        if address and address != 'Not found':
-            address = self._format_address_with_proper_spacing(address)
-
         return {
-            'phone': phone if phone else 'Not found',
-            'email': email if email else 'Not found',
-            'office': address if address else 'Not found'
+            'phone': 'Not found',
+            'email': 'Not found',
+            'office': 'Not found'
         }
 
 
@@ -562,7 +407,6 @@ class FacebookParser(SocialPlatformParser):
         page_content = self._fetch_with_selenium(url, wait_time=20)
 
         if not page_content:
-            logger.warning(f"Failed to fetch Facebook page: {url}")
             return {
                 'phone': 'Not found',
                 'email': 'Not found',

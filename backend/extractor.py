@@ -58,6 +58,8 @@ class ContactExtractor:
 
         except Exception as e:
             logger.error(f"Error extracting contacts: {str(e)}")
+            import traceback
+            traceback.print_exc()
             return {
                 'phone': 'Not found',
                 'email': 'Not found',
