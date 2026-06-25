@@ -56,15 +56,32 @@ class ContactExtractor {
         this.clearResults();
 
         try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
+
             const response = await fetch('/api/extract', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ url: url })
+                body: JSON.stringify({ url: url }),
+                signal: controller.signal
             });
 
-            const data = await response.json();
+            clearTimeout(timeoutId);
+
+            // Check if response is empty
+            const text = await response.text();
+            if (!text) {
+                throw new Error('Empty response from server');
+            }
+
+            let data;
+            try {
+                data = JSON.parse(text);
+            } catch (e) {
+                throw new Error('Invalid JSON response from server');
+            }
 
             if (!response.ok) {
                 throw new Error(data.error || 'Failed to extract contacts');
@@ -78,7 +95,11 @@ class ContactExtractor {
 
         } catch (error) {
             console.error('Error:', error);
-            this.showError(error.message || 'Something went wrong. Please try again.');
+            if (error.name === 'AbortError') {
+                this.showError('Request timed out. Please try again.');
+            } else {
+                this.showError(error.message || 'Something went wrong. Please try again.');
+            }
         } finally {
             this.showLoading(false);
         }
@@ -140,10 +161,8 @@ class ContactExtractor {
         // Check if value contains numbered addresses (1., 2., 3.)
         let displayValue = value;
         if (value && value.includes('\n\n') && !isNotFound) {
-            // Format with proper HTML for better display
             const addressItems = value.split('\n\n').filter(addr => addr.trim());
             displayValue = addressItems.map(addr => {
-                // Check if it starts with a number (1., 2., etc.)
                 if (addr.match(/^\d+\./)) {
                     return `<span class="address-item">${addr}</span>`;
                 }
@@ -152,16 +171,16 @@ class ContactExtractor {
         }
 
         return `
-        <div class="contact-item">
-            <div class="contact-icon">
-                <i class="${iconClass}"></i>
+            <div class="contact-item">
+                <div class="contact-icon">
+                    <i class="${iconClass}"></i>
+                </div>
+                <div class="contact-info">
+                    <div class="contact-label">${label}</div>
+                    <div class="contact-value ${valueClass}">${displayValue}</div>
+                </div>
             </div>
-            <div class="contact-info">
-                <div class="contact-label">${label}</div>
-                <div class="contact-value ${valueClass}">${displayValue}</div>
-            </div>
-        </div>
-    `;
+        `;
     }
 
     truncateUrl(url) {
@@ -183,8 +202,8 @@ class ContactExtractor {
     showError(message) {
         this.resultsSection.innerHTML = `
             <div class="error-state">
-                <i class="fas fa-exclamation-circle"></i>
-                <p>${message}</p>
+                <i class="fas fa-exclamation-circle" style="font-size: 2.5rem; color: #dc2626; display: block; margin-bottom: 10px;"></i>
+                <p style="font-weight: 500; color: #dc2626;">${message}</p>
             </div>
         `;
         this.resultsSection.style.display = 'block';

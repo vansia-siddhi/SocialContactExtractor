@@ -45,6 +45,8 @@ class ContactExtractor:
         """
         platform = self.detect_platform(url)
 
+        logger.info(f"Platform detected: {platform}")
+
         try:
             if platform in self.platforms:
                 parser = self.platforms[platform]
@@ -54,7 +56,20 @@ class ContactExtractor:
                 contacts = self.generic_parser.parse(url)
                 logger.info("Used generic parser")
 
-            return contacts
+            # Ensure all keys exist
+            default = {
+                'phone': 'Not found',
+                'email': 'Not found',
+                'office': 'Not found'
+            }
+
+            # Merge with defaults
+            result = {**default, **contacts}
+
+            # Log the result
+            logger.info(f"Extraction result: {result}")
+
+            return result
 
         except Exception as e:
             logger.error(f"Error extracting contacts: {str(e)}")
