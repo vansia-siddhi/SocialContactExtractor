@@ -1,0 +1,24 @@
+{
+  "samples": [
+    {
+      "name": "Simran Patel",
+      "platform": "LinkedIn",
+      "url": "https://linkedin.com/in/simranpatel",
+      "contacts": {
+        "phone": "+91 98765 43210",
+        "email": "simran.patel@linkedin.com",
+        "office": "Empire Tower, 5th Floor, Bangalore, India"
+      }
+    },
+    {
+      "name": "Designer Life",
+      "platform": "Instagram",
+      "url": "https://instagram.com/designerlife",
+      "contacts": {
+        "phone": "+1 212 555 0199",
+        "email": "creators@instagram.com",
+        "office": "1 Metaverse Plaza, New York, NY 10001"
+      }
+    }
+  ]
+}
