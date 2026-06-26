@@ -2180,3 +2180,496 @@ MemoryError
 2026-06-26 11:31:07,887 - backend.social_platforms - INFO - Requests extraction - Phone: None, Email: sales@moontechnolabs.com, Address: C 105 A Ganesh Meredian, Opp.Kargil Petrol Pump, Sarkhej - Gandhinagar Highway, Sola Ahmedabad, GJ 380060, IN
 2026-06-26 11:31:07,888 - backend.extractor - INFO - Extracted contacts using linkedin parser
 2026-06-26 11:31:07,888 - werkzeug - INFO - 192.168.29.51 - - [26/Jun/2026 11:31:07] "POST /api/extract HTTP/1.1" 200 -
+2026-06-26 11:38:49,007 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.29.51:5000
+2026-06-26 11:38:49,007 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2026-06-26 11:38:50,438 - werkzeug - INFO - 192.168.29.51 - - [26/Jun/2026 11:38:50] "GET / HTTP/1.1" 200 -
+2026-06-26 11:38:50,550 - werkzeug - INFO - 192.168.29.51 - - [26/Jun/2026 11:38:50] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-06-26 11:38:50,555 - werkzeug - INFO - 192.168.29.51 - - [26/Jun/2026 11:38:50] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2026-06-26 11:38:50,652 - werkzeug - INFO - 192.168.29.51 - - [26/Jun/2026 11:38:50] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2026-06-26 11:38:54,557 - __main__ - INFO - Extracting contacts from: https://in.linkedin.com/company/codesdot-solution-llp
+2026-06-26 11:38:54,557 - backend.social_platforms - INFO - Parsing LinkedIn profile: https://in.linkedin.com/company/codesdot-solution-llp
+2026-06-26 11:38:54,558 - backend.social_platforms - ERROR - LinkedIn API error: No module named 'linkedin_api'
+2026-06-26 11:38:54,558 - backend.social_platforms - INFO - Falling back to requests + BeautifulSoup...
+2026-06-26 11:38:54,558 - backend.social_platforms - INFO - Trying URL: https://in.linkedin.com/company/codesdot-solution-llp
+2026-06-26 11:38:57,828 - backend.social_platforms - INFO - Found address-0: 301, 3rd floor,Meredian tower, Nr.UTC , Udhna DarwajaSurat, Gujarat 395002, IN
+2026-06-26 11:38:58,044 - backend.social_platforms - INFO - Found address in meta: 1,385 followers on LinkedIn. Custom-fit IT solutions that suite your every needs
+2026-06-26 11:38:58,044 - backend.social_platforms - INFO - Found address in meta: Established in the year 2015 with an intention to concentrate on the basic computer need of house hold families and IT student, by expanding our business. understood the requirement of business clients of all field in today’s competitive market and also started concentrating on the client’s requirement of Website and Software.
+2026-06-26 11:38:58,045 - backend.social_platforms - INFO - Found address in meta: We have wide range of experience on Modern web technologies for Server-side programming to Client-side programming.
+2026-06-26 11:38:58,068 - backend.social_platforms - INFO - Found address from text: Surat, Gujarat 1,385 followers
+2026-06-26 11:38:58,069 - backend.social_platforms - INFO - Found address from text: Custom-fit IT solutions that suite your every needs
+2026-06-26 11:38:58,069 - backend.social_platforms - INFO - Found address from text: View all 12 employees
+2026-06-26 11:38:58,070 - backend.social_platforms - INFO - Found address from text: We have wide range of experience on Modern web technologies for Server-side programming to Client-side programming. Programming technologies we work with are PHP, ASP.NET MVC, C#, Wordpress, Codeigniter, Magento.
+2026-06-26 11:38:58,071 - backend.social_platforms - INFO - Found address from text: We are not behind in Design stuff. Our expertise in design stack are HTML5, CSS3, Javascript, Photoshop, illustrator, JQuery, Ajax, Twitter Bootstrap(Responsive Design), Angular.js. We have proven portfolio of intuitive and super solid flat designs.
+2026-06-26 11:38:58,071 - backend.social_platforms - INFO - Found address from text: We are team of 45+ developers. We can handle any type of problems related to development, web development or design issues.
+2026-06-26 11:38:58,071 - backend.social_platforms - INFO - Found address from text: We have designed our own process of work. We follows SCRUM meeting and Agile development strategy. Daily meetings, Regular updates, quick turnaround time, instant response 24x7, marketing strategy, SEO Plans, Future enhancement.
+2026-06-26 11:38:58,072 - backend.social_platforms - INFO - Found address from text: We are expert to do Creativity. We know the trend and we know the target people. We know what today's people want.
+2026-06-26 11:38:58,072 - backend.social_platforms - INFO - Found address from text: 11-50 employees
+2026-06-26 11:38:58,072 - backend.social_platforms - INFO - Found address from text: Surat, Gujarat
+2026-06-26 11:38:58,072 - backend.social_platforms - INFO - Found address from text: 301, 3rd floor,Meredian tower, Nr.UTC , Udhna Darwaja
+2026-06-26 11:38:58,072 - backend.social_platforms - INFO - Found address from text: Surat, Gujarat 395002, IN
+2026-06-26 11:38:58,073 - backend.social_platforms - INFO - Found address from text: Employees at Codesdot Solution LLP
+2026-06-26 11:38:58,073 - backend.social_platforms - INFO - Found address from text: See all employees
+2026-06-26 11:38:58,073 - backend.social_platforms - INFO - Found address from text: 1,385 followers
+2026-06-26 11:38:58,073 - backend.social_platforms - INFO - Found address from text: Report this post
+2026-06-26 11:38:58,073 - backend.social_platforms - INFO - Found address from text: LinkedIn Skip to main content LinkedIn Top Content People Learning Jobs Games Get the app Sign in Join now Codesdot Solution LLP IT Services and IT Consulting Surat
+2026-06-26 11:38:58,074 - backend.social_platforms - INFO - Found address from text: 385 followers Custom-fit IT solutions that suite your every needs Follow View all 12 employees Report this company About us About CodesDot Solutions Established in the year 2015 with an intention to concentrate on the basic computer need of house hold families and IT student
+2026-06-26 11:38:58,211 - backend.social_platforms - INFO - Found address from text: illustrator
+2026-06-26 11:38:58,212 - backend.social_platforms - INFO - Found address from text: Twitter Bootstrap(Responsive Design)
+2026-06-26 11:38:58,212 - backend.social_platforms - INFO - Found address from text: Angular.js. We have proven portfolio of intuitive and super solid flat designs. We are team of 45+ developers. We can handle any type of problems related to development
+2026-06-26 11:38:58,212 - backend.social_platforms - INFO - Found address from text: web development or design issues. We have designed our own process of work. We follows SCRUM meeting and Agile development strategy. Daily meetings
+2026-06-26 11:38:58,212 - backend.social_platforms - INFO - Found address from text: instant response 24x7
+2026-06-26 11:38:58,212 - backend.social_platforms - INFO - Found address from text: marketing strategy
+2026-06-26 11:38:58,212 - backend.social_platforms - INFO - Found address from text: Future enhancement. We are expert to do Creativity. We know the trend and we know the target people. We know what today's people want. Website codesdot.com External link for Codesdot Solution LLP Industry IT Services and IT Consulting Company size 11-50 employees Headquarters Surat
+2026-06-26 11:38:58,212 - backend.social_platforms - INFO - Found address from text: Gujarat Type Privately Held Founded 2015 Locations Primary 301
+2026-06-26 11:38:58,212 - backend.social_platforms - INFO - Found address from text: Meredian tower
+2026-06-26 11:38:58,213 - backend.social_platforms - INFO - Found address from text: Udhna Darwaja Surat
+2026-06-26 11:38:58,213 - backend.social_platforms - INFO - Found address from text: Gujarat 395002
+2026-06-26 11:38:58,213 - backend.social_platforms - INFO - Found address from text: IN Employees at Codesdot Solution LLP Keyur Bhesaniya Sharad D. Nirbhay Bhuva siddhi vansia See all employees Updates Codesdot Solution LLP 1
+2026-06-26 11:38:58,216 - backend.social_platforms - INFO - Found address from text: Are you passionate about creating intelligent systems and solving real-world problems with AI?
+2026-06-26 11:38:58,217 - backend.social_platforms - INFO - Found address from text: This is your opportunity to work with modern technologies, build scalable intelligent applications, and contribute to impactful digital products.
+2026-06-26 11:38:58,230 - backend.social_platforms - INFO - Found address from text: #Hiring #WeAreHiring #AIEngineer #ArtificialIntelligence #MachineLearning #DeepLearning #AIJobs #HiringNow #TechJobs #DeveloperJobs #SoftwareEngineer #DataScience #GenerativeAI #AICareers #MLJobs #Innovation #JobOpening #CareerGrowth #ITJobs #SuratJobs #GujaratJobs #IndiaJobs #JobSearch #OpenToWork #TechHiring #AICommunity #FutureOfWork #DigitalTransformation #EngineeringJobs #CareerOpportunity #HiringAlert #StartupJobs #Technology #TechCareers #AIInnovation #CodesDot #WorkWithUs #LinkedInJobs #Recruitment #NowHiring
+2026-06-26 11:38:58,231 - backend.social_platforms - INFO - Found address from text: View C2PA information
+2026-06-26 11:38:58,231 - backend.social_platforms - INFO - Found address from text: Join CodesDot & Build the Future of Artificial Intelligence Are you passionate about creating intelligent systems and solving real-world problems with AI? CodesDot is looking for a talented AI Engineer to join our growing team and develop innovative AI-powered solutions. This is your opportunity to work with modern technologies
+2026-06-26 11:38:58,231 - backend.social_platforms - INFO - Found address from text: build scalable intelligent applications
+2026-06-26 11:38:58,245 - backend.social_platforms - INFO - Found address from text: Looking for your next career opportunity in the tech industry?
+2026-06-26 11:38:58,245 - backend.social_platforms - INFO - Found address from text: We are expanding and hiring talented professionals who are ready to grow, innovate, and make an impact.
+2026-06-26 11:38:58,247 - backend.social_platforms - INFO - Found address from text: Your next opportunity starts here.
+2026-06-26 11:38:58,247 - backend.social_platforms - INFO - Found address from text: #Hiring #WeAreHiring #HiringNow #JobOpening #TechJobs #CareerOpportunity #Jobs #Recruitment #HiringAlert #OpenToWork #SuratJobs #GujaratJobs #CodesDot #BDE #BusinessDevelopment #BusinessDevelopmentExecutive #AIEngineer #ArtificialIntelligence #MachineLearning #AIJobs #ShopifyDeveloper #ShopifyJobs #DeveloperJobs #SoftwareJobs #ITJobs #TechCareers #CareerGrowth #DigitalTransformation #Innovation #StartupJobs #JobSearch #HiringPost #WorkWithUs #FutureOfWork #Technology #LinkedInJobs #RecruitmentDrive #HiringIndia #CareerGoals #JobAlert
+2026-06-26 11:38:58,247 - backend.social_platforms - INFO - Found address from text: Do you have an eye for clean design and a passion for creating exceptional digital experiences?
+2026-06-26 11:38:58,248 - backend.social_platforms - INFO - Found address from text: Join CodesDot and turn ideas into beautiful, user-friendly interfaces that make an impact.
+2026-06-26 11:38:58,261 - backend.social_platforms - INFO - Found address from text: 14 Comments
+2026-06-26 11:38:58,261 - backend.social_platforms - INFO - Found address from text: CodesDot Solution is looking for a talented AI Developer to join our growing innovation team and create intelligent digital solutions that make a real impact.
+2026-06-26 11:38:58,261 - backend.social_platforms - INFO - Found address from text: If you have experience developing AI models, working with machine learning workflows, and building scalable intelligent applications — this opportunity is for you.
+2026-06-26 11:38:58,264 - backend.social_platforms - INFO - Found address from text: We’re not looking for average.
+2026-06-26 11:38:58,266 - backend.social_platforms - INFO - Found address from text: Build Your Career with CodesDot Looking for your next career opportunity in the tech industry? Join CodesDot and become part of a passionate team creating innovative digital solutions and shaping the future of technology. We are expanding and hiring talented professionals who are ready to grow
+2026-06-26 11:38:58,272 - backend.social_platforms - INFO - Found address from text: user-friendly interfaces that make an impact. We’re looking for a creative UI Designer who loves transforming concepts into modern
+2026-06-26 11:38:58,275 - backend.social_platforms - INFO - Found address from text: 385 followers 1w Report this post Are you passionate about Artificial Intelligence
+2026-06-26 11:38:58,275 - backend.social_platforms - INFO - Found address from text: and next-generation technology? CodesDot Solution is looking for a talented AI Developer to join our growing innovation team and create intelligent digital solutions that make a real impact. If you have experience developing AI models
+2026-06-26 11:38:58,294 - backend.social_platforms - INFO - Found address from text: - Wants real growth (not just a salary)
+2026-06-26 11:38:58,294 - backend.social_platforms - INFO - Found address from text: - Wants to work with a driven team
+2026-06-26 11:38:58,297 - backend.social_platforms - INFO - Found address from text: 12 Comments
+2026-06-26 11:38:58,297 - backend.social_platforms - INFO - Found address from text: Because we don’t just deliver services — we create experiences that drive real business growth.
+2026-06-26 11:38:58,301 - backend.social_platforms - INFO - Found address from text: Your success is our priority at every stage.
+2026-06-26 11:38:58,306 - backend.social_platforms - INFO - Found address from text: Smart planning with measurable outcomes.
+2026-06-26 11:38:58,313 - backend.social_platforms - INFO - Found address from text: Connecting businesses with wider opportunities.
+2026-06-26 11:38:58,322 - backend.social_platforms - INFO - Found address from text: #WhyChooseUs #CodesDot #Innovation #BusinessGrowth #DigitalSolutions #TechCompany #CreativeAgency #ResultsDriven #FutureReady #WeAreHiring #HiringNow #SuratJobs #ShopifyDeveloper
+2026-06-26 11:38:58,323 - backend.social_platforms - INFO - Found address from text: #BusinessDevelopmentExecutive #DotNetDeveloper #TechJobs #DeveloperHiring #BDEJobs #JobOpening #HiringAlert #CareerGrowth #JobsInSurat #JoinOurTeam
+2026-06-26 11:38:58,361 - backend.social_platforms - INFO - Found address from text: If you’re passionate about sales, building connections, and growing your career, we’d love to connect with you!
+2026-06-26 11:38:58,362 - backend.social_platforms - INFO - Found address from text: #WeAreHiring #HiringNow #SuratJobs #ShopifyDeveloper #BusinessDevelopmentExecutive #DotNetDeveloper #TechJobs #DeveloperHiring #BDEJobs #JobOpening #HiringAlert #CareerGrowth #JobsInSurat #JoinOurTeam #LocalCandidatesPreferred
+2026-06-26 11:38:58,362 - backend.social_platforms - INFO - Found address from text: Are you passionate about building intelligent systems and shaping the future with Artificial Intelligence?
+2026-06-26 11:38:58,375 - backend.social_platforms - INFO - Found address from text: building connections
+2026-06-26 11:38:58,383 - backend.social_platforms - INFO - Found address from text: Build and deploy AI-powered applications
+2026-06-26 11:38:58,383 - backend.social_platforms - INFO - Found address from text: Work with data-driven intelligent systems
+2026-06-26 11:38:58,399 - backend.social_platforms - INFO - Found address from text: #WeAreHiring #HiringNow #SuratJobs #ShopifyDeveloper
+2026-06-26 11:38:58,399 - backend.social_platforms - INFO - Found address from text: #BusinessDevelopmentExecutive #DotNetDeveloper #TechJobs #DeveloperHiring #BDEJobs #JobOpening #HiringAlert #CareerGrowth #JobsInSurat #JoinOurTeam #LocalCandidatesPreferred
+2026-06-26 11:38:58,399 - backend.social_platforms - INFO - Found address from text: 2+ Years Experience
+2026-06-26 11:38:58,402 - backend.social_platforms - INFO - Found address from text: Surat We're looking for a skilled .NET Developer with experience in C#
+2026-06-26 11:38:58,407 - backend.social_platforms - INFO - Found address from text: #Hiring #BusinessDevelopment #BDE #SalesJobs #BusinessGrowth #CareerOpportunity #SuratJobs #HiringNow #ITJobs
+2026-06-26 11:38:58,407 - backend.social_platforms - INFO - Found address from text: Find people you know at Codesdot Solution LLP
+2026-06-26 11:38:58,408 - backend.social_platforms - INFO - Found address from text: Slash Star (formerly xR Studio)
+2026-06-26 11:38:58,408 - backend.social_platforms - INFO - Found address from text: Ahmedabad, Gujarat
+2026-06-26 11:38:58,408 - backend.social_platforms - INFO - Found address from text: Dynamic Dreamz
+2026-06-26 11:38:58,413 - backend.social_platforms - INFO - Found address from text: and articles Join now Similar pages Slash Star (formerly xR Studio) IT Services and IT Consulting Vasundhara Infotech IT Services and IT Consulting Surat
+2026-06-26 11:38:58,413 - backend.social_platforms - INFO - Found address from text: Gujarat 8Dots Information Services Ahmedabad
+2026-06-26 11:38:58,413 - backend.social_platforms - INFO - Found address from text: Gujarat Dynamic Dreamz
+2026-06-26 11:38:58,414 - backend.social_platforms - INFO - Found address from text: Instance IT Solutions
+2026-06-26 11:38:58,414 - backend.social_platforms - INFO - Found address from text: Daydreamsoft Infotech LLP
+2026-06-26 11:38:58,414 - backend.social_platforms - INFO - Found address from text: 73,513 open jobs
+2026-06-26 11:38:58,414 - backend.social_platforms - INFO - Found address from text: 1,491 open jobs
+2026-06-26 11:38:58,415 - backend.social_platforms - INFO - Found address from text: 6,106 open jobs
+2026-06-26 11:38:58,415 - backend.social_platforms - INFO - Found address from text: 12,759 open jobs
+2026-06-26 11:38:58,415 - backend.social_platforms - INFO - Found address from text: 59,663 open jobs
+2026-06-26 11:38:58,415 - backend.social_platforms - INFO - Found address from text: Senior Solutions Architect jobs
+2026-06-26 11:38:58,415 - backend.social_platforms - INFO - Found address from text: Product Designer jobs
+2026-06-26 11:38:58,416 - backend.social_platforms - INFO - Found address from text: Mobile Application Developer jobs
+2026-06-26 11:38:58,416 - backend.social_platforms - INFO - Found address from text: Human Resources Specialist jobs
+2026-06-26 11:38:58,416 - backend.social_platforms - INFO - Found address from text: Human Resources Administrator jobs
+2026-06-26 11:38:58,416 - backend.social_platforms - INFO - Found address from text: Human Resources Generalist jobs
+2026-06-26 11:38:58,416 - backend.social_platforms - INFO - Found address from text: Scientist jobs
+2026-06-26 11:38:58,416 - backend.social_platforms - INFO - Found address from text: Guest Controls
+2026-06-26 11:38:58,422 - backend.social_platforms - INFO - Found address from text: Don’t have the app? Get it in the Microsoft Store.
+2026-06-26 11:38:58,422 - backend.social_platforms - INFO - Found address from text: Shopify Premier Partner IT Services and IT Consulting Surat
+2026-06-26 11:38:58,422 - backend.social_platforms - INFO - Found address from text: Gujarat Instance IT Solutions IT Services and IT Consulting Surat
+2026-06-26 11:38:58,422 - backend.social_platforms - INFO - Found address from text: Gujarat Daydreamsoft Infotech LLP IT Services and IT Consulting surat
+2026-06-26 11:38:58,422 - backend.social_platforms - INFO - Found address from text: gujarat Futurelens Technology IT Services and IT Consulting Surat
+2026-06-26 11:38:58,422 - backend.social_platforms - INFO - Found address from text: Gujarat BrainFleck Solutions Software Development Surat
+2026-06-26 11:38:58,423 - backend.social_platforms - INFO - Found address from text: Gujarat Codeline Infotech LLP IT Services and IT Consulting Surat
+2026-06-26 11:38:58,423 - backend.social_platforms - INFO - Found address from text: Gujarat La Net Team Software Solution Pvt Ltd. IT Services and IT Consulting Surat
+2026-06-26 11:38:58,423 - backend.social_platforms - INFO - Found address from text: Gujarat Show more similar pages Show fewer similar pages Browse jobs Developer jobs 73
+2026-06-26 11:38:58,423 - backend.social_platforms - INFO - Found address from text: 513 open jobs Web Development Intern jobs 1
+2026-06-26 11:38:58,423 - backend.social_platforms - INFO - Found address from text: 491 open jobs PHP Developer jobs 6
+2026-06-26 11:38:58,423 - backend.social_platforms - INFO - Found address from text: 106 open jobs Python Developer jobs 12
+2026-06-26 11:38:58,423 - backend.social_platforms - INFO - Found address from text: 759 open jobs Software Engineer jobs 59
+2026-06-26 11:38:58,425 - backend.social_platforms - INFO - Found address from text: and Cookie Policy. LinkedIn LinkedIn is better on the app Don’t have the app? Get it in the Microsoft Store. Open the app
+2026-06-26 11:38:58,432 - backend.social_platforms - INFO - Found address from JSON-LD:  301,  3rd floor,Meredian tower, Nr.UTC , Udhna Darwaja, Surat, Gujarat, 395002, IN
+2026-06-26 11:38:58,565 - backend.extractor - INFO - Extracted contacts using linkedin parser
+2026-06-26 11:38:58,566 - werkzeug - INFO - 192.168.29.51 - - [26/Jun/2026 11:38:58] "POST /api/extract HTTP/1.1" 200 -
+2026-06-26 11:39:04,521 - werkzeug - INFO - 192.168.29.51 - - [26/Jun/2026 11:39:04] "GET / HTTP/1.1" 200 -
+2026-06-26 11:39:04,570 - werkzeug - INFO - 192.168.29.51 - - [26/Jun/2026 11:39:04] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-06-26 11:39:04,576 - werkzeug - INFO - 192.168.29.51 - - [26/Jun/2026 11:39:04] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2026-06-26 11:39:04,748 - werkzeug - INFO - 192.168.29.51 - - [26/Jun/2026 11:39:04] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2026-06-26 11:39:06,495 - __main__ - INFO - Extracting contacts from: https://in.linkedin.com/company/moontechnolabs
+2026-06-26 11:39:06,495 - backend.social_platforms - INFO - Parsing LinkedIn profile: https://in.linkedin.com/company/moontechnolabs
+2026-06-26 11:39:06,496 - backend.social_platforms - ERROR - LinkedIn API error: No module named 'linkedin_api'
+2026-06-26 11:39:06,496 - backend.social_platforms - INFO - Falling back to requests + BeautifulSoup...
+2026-06-26 11:39:06,496 - backend.social_platforms - INFO - Trying URL: https://in.linkedin.com/company/moontechnolabs
+2026-06-26 11:39:08,237 - backend.social_platforms - INFO - Found address-0: C 105A Ganesh Meredian, Opp.Kargil Petrol Pump, Sarkhej - Gandhinagar Highway, SolaAhmedabad, GJ 380060, IN
+2026-06-26 11:39:08,238 - backend.social_platforms - INFO - Found address-1: 205 N Michigan AveChicago, Illinois 60601, US
+2026-06-26 11:39:08,239 - backend.social_platforms - INFO - Found address-2: Pflugerville, Texas 78660, US
+2026-06-26 11:39:08,493 - backend.social_platforms - INFO - Found address in meta: 58,655 followers on LinkedIn. An Award-Winning Software Development Company. Pioneer in AI-powered IT Services &amp
+2026-06-26 11:39:08,494 - backend.social_platforms - INFO - Found address in meta: At Moon Technolabs, we are committed to spearheading new ideas and concepts to provide our clients with the best possible digital transformation services. Our unique edge lies in our pool of talented developers, extensive industry expertise, and a genuine understanding of what it takes to succeed. With 16+ years of experience, we have a deep understanding of the industry and can cater to a wide array of customer-centric services.
+2026-06-26 11:39:08,494 - backend.social_platforms - INFO - Found address in meta: we are committed to spearheading new ideas and concepts to provide our clients with the best possible digital transformation services. Our unique edge lies in our pool of talented developers
+2026-06-26 11:39:08,494 - backend.social_platforms - INFO - Found address in meta: extensive industry expertise
+2026-06-26 11:39:08,494 - backend.social_platforms - INFO - Found address in meta: and a genuine understanding of what it takes to succeed. With 16+ years of experience
+2026-06-26 11:39:08,494 - backend.social_platforms - INFO - Found address in meta: we have a deep understanding of the industry and can cater to a wide array of customer-centric services.
+2026-06-26 11:39:08,521 - backend.social_platforms - INFO - Found address from text: Ahmedabad, GJ 58,655 followers
+2026-06-26 11:39:08,522 - backend.social_platforms - INFO - Found address from text: Discover all 411 employees
+2026-06-26 11:39:08,522 - backend.social_platforms - INFO - Found address from text: At Moon Technolabs, we are committed to spearheading new ideas and concepts to provide our clients with the best possible digital transformation services. Our unique edge lies in our pool of talented developers, extensive industry expertise, and a genuine understanding of what it takes to succeed. With 16+ years of experience, we have a deep understanding of the industry and can cater to a wide array of customer-centric services. Moreover, startups, SMBs and large enterprises are gaining a competitive advantage through our flexible and advanced global delivery models.
+2026-06-26 11:39:08,522 - backend.social_platforms - INFO - Found address from text: Our specialization is to augment business operations with Big Data analytics, the Internet of Things (IoT), Artificial Intelligence, and cloud computing. Our team authorizes businesses to navigate the competitive technological landscape and adapt according to their transformation goals—from development to people.
+2026-06-26 11:39:08,553 - backend.social_platforms - INFO - Found address from text: 201-500 employees
+2026-06-26 11:39:08,553 - backend.social_platforms - INFO - Found address from text: Ahmedabad, GJ
+2026-06-26 11:39:08,553 - backend.social_platforms - INFO - Found address from text: IoT App Development, Blockchain Development, WebRTC Development, Cloud App Development, AWS App Development, Devops App Development, Metaverse Development, AR/VR Development, AI/ML Development, SaaS Application Development, Custome Web3 App Development, Custom Software Development, eCommerce Development, iOS Development, Android Development, React Native App Development, Flutter App Development, Windows App Development, NodeJS Development, Angular Development, ReactJS Development, Python Development, CodeIgniter Development, and ASP.NET development
+2026-06-26 11:39:08,553 - backend.social_platforms - INFO - Found address from text: C 105A Ganesh Meredian, Opp.Kargil Petrol Pump, Sarkhej - Gandhinagar Highway, Sola
+2026-06-26 11:39:08,554 - backend.social_platforms - INFO - Found address from text: Ahmedabad, GJ 380060, IN
+2026-06-26 11:39:08,554 - backend.social_platforms - INFO - Found address from text: 205 N Michigan Ave
+2026-06-26 11:39:08,554 - backend.social_platforms - INFO - Found address from text: Chicago, Illinois 60601, US
+2026-06-26 11:39:08,554 - backend.social_platforms - INFO - Found address from text: Employees at Moon Technolabs
+2026-06-26 11:39:08,554 - backend.social_platforms - INFO - Found address from text: See all employees
+2026-06-26 11:39:08,554 - backend.social_platforms - INFO - Found address from text: 58,655 followers
+2026-06-26 11:39:08,554 - backend.social_platforms - INFO - Found address from text: Report this post
+2026-06-26 11:39:08,562 - backend.social_platforms - INFO - Found address from text: Moon Technolabs is bringing the smartest, most game-changing solutions to Europe’s largest tech expo.
+2026-06-26 11:39:08,568 - backend.social_platforms - INFO - Found address from text: https://lnkd.in/dcNshtJ9
+2026-06-26 11:39:08,568 - backend.social_platforms - INFO - Found address from text: GITEX AI EUROPE - Europe's Leading Tech & AI Event
+2026-06-26 11:39:08,568 - backend.social_platforms - INFO - Found address from text: #GITEXAIEurope #GITEXEUROPE #GITEX #GITEX2026 #MoonTechnolabs
+2026-06-26 11:39:08,569 - backend.social_platforms - INFO - Found address from text: The challenge isn't meeting people—it's making sure every conversation turns into a meaningful follow-up.
+2026-06-26 11:39:08,569 - backend.social_platforms - INFO - Found address from text: With the Moon Exhibition Lead Capture App, teams can instantly capture business cards, record conversations, organize leads, and prioritize follow-ups from a single platform.
+2026-06-26 11:39:08,569 - backend.social_platforms - INFO - Found address from text: No spreadsheets. No lost contacts. No missed opportunities.
+2026-06-26 11:39:08,569 - backend.social_platforms - INFO - Found address from text: If you're planning your next exhibition or trade show, let's talk about how you can streamline lead management and maximize event ROI.
+2026-06-26 11:39:08,569 - backend.social_platforms - INFO - Found address from text: Meet Moon Technolabs at GITEX AI EUROPE - Europe's Leading Tech & AI Event
+2026-06-26 11:39:08,583 - backend.social_platforms - INFO - Found address from text: Whether you're looking to accelerate digital transformation, build intelligent products, or scale with cutting-edge technology, our experts are ready to connect.
+2026-06-26 11:39:08,585 - backend.social_platforms - INFO - Found address from text: LinkedIn Skip to main content LinkedIn Top Content People Learning Jobs Games Get the app Sign in Join now Moon Technolabs IT Services and IT Consulting Ahmedabad
+2026-06-26 11:39:08,586 - backend.social_platforms - INFO - Found address from text: 655 followers An Award-Winning Software Development Company. Pioneer in AI-powered IT Services & Solutions. See jobs Follow Discover all 411 employees Report this company About us At Moon Technolabs
+2026-06-26 11:39:08,586 - backend.social_platforms - INFO - Found address from text: we have a deep understanding of the industry and can cater to a wide array of customer-centric services. Moreover
+2026-06-26 11:39:08,588 - backend.social_platforms - INFO - Found address from text: GJ Type Privately Held Founded 2009 Specialties IoT App Development
+2026-06-26 11:39:08,588 - backend.social_platforms - INFO - Found address from text: Metaverse Development
+2026-06-26 11:39:08,588 - backend.social_platforms - INFO - Found address from text: SaaS Application Development
+2026-06-26 11:39:08,588 - backend.social_platforms - INFO - Found address from text: Custome Web3 App Development
+2026-06-26 11:39:08,589 - backend.social_platforms - INFO - Found address from text: Custom Software Development
+2026-06-26 11:39:08,589 - backend.social_platforms - INFO - Found address from text: Android Development
+2026-06-26 11:39:08,589 - backend.social_platforms - INFO - Found address from text: React Native App Development
+2026-06-26 11:39:08,589 - backend.social_platforms - INFO - Found address from text: ReactJS Development
+2026-06-26 11:39:08,589 - backend.social_platforms - INFO - Found address from text: and ASP.NET development Locations Primary C 105A Ganesh Meredian
+2026-06-26 11:39:08,589 - backend.social_platforms - INFO - Found address from text: Sarkhej - Gandhinagar Highway
+2026-06-26 11:39:08,592 - backend.social_platforms - INFO - Found address from text: Sola Ahmedabad
+2026-06-26 11:39:08,593 - backend.social_platforms - INFO - Found address from text: IN 205 N Michigan Ave Chicago
+2026-06-26 11:39:08,593 - backend.social_platforms - INFO - Found address from text: Illinois 60601
+2026-06-26 11:39:08,593 - backend.social_platforms - INFO - Found address from text: Texas 78660
+2026-06-26 11:39:08,594 - backend.social_platforms - INFO - Found address from text: US Employees at Moon Technolabs Jayanti K. Bharat Chandera Hiren Dedaniya hitesh chorada See all employees Updates Moon Technolabs 58
+2026-06-26 11:39:08,594 - backend.social_platforms - INFO - Found address from text: 655 followers 2h Report this post Berlin is about to witness the huge impact of AI
+2026-06-26 11:39:08,610 - backend.social_platforms - INFO - Found address from text: Germany Schedule a Meeting - https://lnkd.in/dcNshtJ9 GITEX AI EUROPE - Europe's Leading Tech & AI Event #GITEXAIEurope #GITEXEUROPE #GITEX #GITEX2026 #MoonTechnolabs 7 Like Comment Share Moon Technolabs 58
+2026-06-26 11:39:08,610 - backend.social_platforms - INFO - Found address from text: 655 followers 23h Report this post Every exhibition creates opportunities. The challenge isn't meeting people—it's making sure every conversation turns into a meaningful follow-up. With the Moon Exhibition Lead Capture App
+2026-06-26 11:39:08,611 - backend.social_platforms - INFO - Found address from text: teams can instantly capture business cards
+2026-06-26 11:39:08,611 - backend.social_platforms - INFO - Found address from text: and prioritize follow-ups from a single platform. No spreadsheets. No lost contacts. No missed opportunities. If you're planning your next exhibition or trade show
+2026-06-26 11:39:08,620 - backend.social_platforms - INFO - Found address from text: and Custom Software Solutions are transforming businesses worldwide. Whether you're looking to accelerate digital transformation
+2026-06-26 11:39:08,620 - backend.social_platforms - INFO - Found address from text: build intelligent products
+2026-06-26 11:39:08,628 - backend.social_platforms - INFO - Found address from text: 3 Comments
+2026-06-26 11:39:08,646 - backend.social_platforms - INFO - Found address from text: Moon Technolabs reposted this
+2026-06-26 11:39:08,646 - backend.social_platforms - INFO - Found address from text: I'll be representing Moon Technolabs at GITEX AI Europe 2026, where we'll be showcasing practical technology solutions designed to solve real-world business challenges.
+2026-06-26 11:39:08,646 - backend.social_platforms - INFO - Found address from text: From AI-powered systems and Cloud & DevOps infrastructure to AR/VR experiences, AI Voice Solutions, and IoT integrations, our focus is on building technology that is scalable, reliable, and future-ready.
+2026-06-26 11:39:08,669 - backend.social_platforms - INFO - Found address from text: where we'll be showcasing practical technology solutions designed to solve real-world business challenges. From AI-powered systems and Cloud & DevOps infrastructure to AR/VR experiences
+2026-06-26 11:39:08,669 - backend.social_platforms - INFO - Found address from text: our focus is on building technology that is scalable
+2026-06-26 11:39:08,675 - backend.social_platforms - INFO - Found address from text: If you're looking for technology that goes beyond prototypes to create measurable impact, schedule a meeting with me in Berlin to explore ways to modernize your business.
+2026-06-26 11:39:08,678 - backend.social_platforms - INFO - Found address from text: 1 Comment
+2026-06-26 11:39:08,679 - backend.social_platforms - INFO - Found address from text: We are excited to exhibit at GITEX AI Europe 2026 for the second year in a row. From AI, Cloud, IoT, and DevOps to our suite of AI-powered solutions, we're looking forward to showcasing how businesses can accelerate innovation and drive real results.
+2026-06-26 11:39:08,679 - backend.social_platforms - INFO - Found address from text: In our latest newsletter, you'll find everything about our presence at GITEX AI Europe 2026, what we'll be showcasing, and how you can connect with our team at Hall H1.2, Stand 04.
+2026-06-26 11:39:08,681 - backend.social_platforms - INFO - Found address from text: Schedule a Meeting - https://lnkd.in/dcNshtJ9
+2026-06-26 11:39:08,681 - backend.social_platforms - INFO - Found address from text: Moon Technolabs Set to Exhibit at GITEX AI Europe 2026 Yet Again
+2026-06-26 11:39:08,681 - backend.social_platforms - INFO - Found address from text: I'll be representing Moon Technolabs at GITEX AI Europe 2026.
+2026-06-26 11:39:08,681 - backend.social_platforms - INFO - Found address from text: Keen to connect with organizations ready to transform how they operate, innovate, and grow.
+2026-06-26 11:39:08,682 - backend.social_platforms - INFO - Found address from text: From AI-powered automation and cloud transformation to AR/VR experiences, VoIP communication systems, and IoT-driven ecosystems, we're helping businesses move beyond traditional processes and embrace smarter ways of working.
+2026-06-26 11:39:08,682 - backend.social_platforms - INFO - Found address from text: Booth 04 If you're looking for technology that goes beyond prototypes to create measurable impact
+2026-06-26 11:39:08,687 - backend.social_platforms - INFO - Found address from text: 655 followers 2d Report this post We're heading back to Berlin! We are excited to exhibit at GITEX AI Europe 2026 for the second year in a row. From AI
+2026-06-26 11:39:08,687 - backend.social_platforms - INFO - Found address from text: we're looking forward to showcasing how businesses can accelerate innovation and drive real results. In our latest newsletter
+2026-06-26 11:39:08,687 - backend.social_platforms - INFO - Found address from text: you'll find everything about our presence at GITEX AI Europe 2026
+2026-06-26 11:39:08,687 - backend.social_platforms - INFO - Found address from text: and how you can connect with our team at Hall H1.2
+2026-06-26 11:39:08,693 - backend.social_platforms - INFO - Found address from text: VoIP communication systems
+2026-06-26 11:39:08,693 - backend.social_platforms - INFO - Found address from text: and IoT-driven ecosystems
+2026-06-26 11:39:08,696 - backend.social_platforms - INFO - Found address from text: If innovation is part of your growth strategy, let's connect and explore what's possible together.
+2026-06-26 11:39:08,699 - backend.social_platforms - INFO - Found address from text: #GITEXAIEurope #GITEXEUROPE #GITEX #GITEX2026 #MoonTechnolabs #AI #ML #IoT #Cloud #VoIP #Services #Development #Startups
+2026-06-26 11:39:08,699 - backend.social_platforms - INFO - Found address from text: 2 Comments
+2026-06-26 11:39:08,700 - backend.social_platforms - INFO - Found address from text: Moon Technolabs is heading to GITEX AI EUROPE 2026, Europe’s biggest tech expo, with a team of experts ready to transform bold business ideas into versatile digital solutions.
+2026-06-26 11:39:08,700 - backend.social_platforms - INFO - Found address from text: Let’s meet up to have meaningful connections and game-changing opportunities.
+2026-06-26 11:39:08,718 - backend.social_platforms - INFO - Found address from text: Reimagine Business Communication with Moon Technolabs at GITEX AI Europe.
+2026-06-26 11:39:08,718 - backend.social_platforms - INFO - Found address from text: Discover how modern VoIP solutions help businesses streamline communication, reduce costs, and enhance customer experiences.
+2026-06-26 11:39:08,747 - backend.social_platforms - INFO - Found address from text: Booth 04 If innovation is part of your growth strategy
+2026-06-26 11:39:08,751 - backend.social_platforms - INFO - Found address from text: 655 followers 3d Report this post Moon Technolabs is heading to GITEX AI EUROPE 2026
+2026-06-26 11:39:08,752 - backend.social_platforms - INFO - Found address from text: Europe’s biggest tech expo
+2026-06-26 11:39:08,764 - backend.social_platforms - INFO - Found address from text: Nikunj Chauhan GITEX AI EUROPE - Europe's Leading Tech & AI Event #GITEXAIEurope #GITEXEUROPE #GITEX #GITEX2026 #MoonTechnolabs 85 2 Comments Like Comment Share Moon Technolabs 58
+2026-06-26 11:39:08,764 - backend.social_platforms - INFO - Found address from text: 655 followers 3d Report this post Reimagine Business Communication with Moon Technolabs at GITEX AI Europe. Discover how modern VoIP solutions help businesses streamline communication
+2026-06-26 11:39:08,765 - backend.social_platforms - INFO - Found address from text: reduce costs
+2026-06-26 11:39:08,785 - backend.social_platforms - INFO - Found address from text: Upto 2 Yrs
+2026-06-26 11:39:08,785 - backend.social_platforms - INFO - Found address from text: 1-1.5 Yrs
+2026-06-26 11:39:08,798 - backend.social_platforms - INFO - Found address from text: 0-6 Months
+2026-06-26 11:39:08,805 - backend.social_platforms - INFO - Found address from text: [Hire Post
+2026-06-26 11:39:08,805 - backend.social_platforms - INFO - Found address from text: Ahmedabad Jobs
+2026-06-26 11:39:08,805 - backend.social_platforms - INFO - Found address from text: Workplace Culture
+2026-06-26 11:39:08,805 - backend.social_platforms - INFO - Found address from text: #AhmedabadJobs #ITjobs #SoftwareDeveloperJobs #TechJobs #MoonTechnolabs
+2026-06-26 11:39:08,805 - backend.social_platforms - INFO - Found address from text: 29 Comments
+2026-06-26 11:39:08,805 - backend.social_platforms - INFO - Found address from text: Find people you know at Moon Technolabs
+2026-06-26 11:39:08,806 - backend.social_platforms - INFO - Found address from text: Chicago, Illinois
+2026-06-26 11:39:08,806 - backend.social_platforms - INFO - Found address from text: Ahmedabad, Gujarat
+2026-06-26 11:39:08,806 - backend.social_platforms - INFO - Found address from text: Irving, Texas
+2026-06-26 11:39:08,810 - backend.social_platforms - INFO - Found address from text: eSparkBiz
+2026-06-26 11:39:08,811 - backend.social_platforms - INFO - Found address from text: 73,513 open jobs
+2026-06-26 11:39:08,811 - backend.social_platforms - INFO - Found address from text: 71,158 open jobs
+2026-06-26 11:39:08,811 - backend.social_platforms - INFO - Found address from text: 12,759 open jobs
+2026-06-26 11:39:08,812 - backend.social_platforms - INFO - Found address from text: Project Manager jobs
+2026-06-26 11:39:08,812 - backend.social_platforms - INFO - Found address from text: 18,687 open jobs
+2026-06-26 11:39:08,812 - backend.social_platforms - INFO - Found address from text: 6,106 open jobs
+2026-06-26 11:39:08,812 - backend.social_platforms - INFO - Found address from text: Analyst jobs
+2026-06-26 11:39:08,813 - backend.social_platforms - INFO - Found address from text: 55,566 open jobs
+2026-06-26 11:39:08,813 - backend.social_platforms - INFO - Found address from text: 2,259 open jobs
+2026-06-26 11:39:08,813 - backend.social_platforms - INFO - Found address from text: 2,706 open jobs
+2026-06-26 11:39:08,813 - backend.social_platforms - INFO - Found address from text: 14,295 open jobs
+2026-06-26 11:39:08,813 - backend.social_platforms - INFO - Found address from text: 8,372 open jobs
+2026-06-26 11:39:08,814 - backend.social_platforms - INFO - Found address from text: 59,663 open jobs
+2026-06-26 11:39:08,814 - backend.social_platforms - INFO - Found address from text: Android Developer jobs
+2026-06-26 11:39:08,814 - backend.social_platforms - INFO - Found address from text: 14,001 open jobs
+2026-06-26 11:39:08,815 - backend.social_platforms - INFO - Found address from text: 2,469 open jobs
+2026-06-26 11:39:08,815 - backend.social_platforms - INFO - Found address from text: 18,207 open jobs
+2026-06-26 11:39:08,815 - backend.social_platforms - INFO - Found address from text: Digital Marketing Specialist jobs
+2026-06-26 11:39:08,815 - backend.social_platforms - INFO - Found address from text: 5,437 open jobs
+2026-06-26 11:39:08,816 - backend.social_platforms - INFO - Found address from text: Scientist jobs
+2026-06-26 11:39:08,816 - backend.social_platforms - INFO - Found address from text: 2,584 open jobs
+2026-06-26 11:39:08,816 - backend.social_platforms - INFO - Found address from text: 45,869 open jobs
+2026-06-26 11:39:08,816 - backend.social_platforms - INFO - Found address from text: 3,407 open jobs
+2026-06-26 11:39:08,816 - backend.social_platforms - INFO - Found address from text: 1,134 open jobs
+2026-06-26 11:39:08,816 - backend.social_platforms - INFO - Found address from text: 13,339 open jobs
+2026-06-26 11:39:08,817 - backend.social_platforms - INFO - Found address from text: Human Resources Specialist jobs
+2026-06-26 11:39:08,817 - backend.social_platforms - INFO - Found address from text: Assistant Project Manager jobs
+2026-06-26 11:39:08,817 - backend.social_platforms - INFO - Found address from text: Search Engine Optimization Analyst jobs
+2026-06-26 11:39:08,818 - backend.social_platforms - INFO - Found address from text: Human Resources Generalist jobs
+2026-06-26 11:39:08,818 - backend.social_platforms - INFO - Found address from text: Associate Project Manager jobs
+2026-06-26 11:39:08,818 - backend.social_platforms - INFO - Found address from text: Business Development Specialist jobs
+2026-06-26 11:39:08,819 - backend.social_platforms - INFO - Found address from text: Senior Business Analyst jobs
+2026-06-26 11:39:08,819 - backend.social_platforms - INFO - Found address from text: Scrum Master jobs
+2026-06-26 11:39:08,819 - backend.social_platforms - INFO - Found address from text: Learning Specialist jobs
+2026-06-26 11:39:08,820 - backend.social_platforms - INFO - Found address from text: Project Control Specialist jobs
+2026-06-26 11:39:08,820 - backend.social_platforms - INFO - Found address from text: Project Management Specialist jobs
+2026-06-26 11:39:08,820 - backend.social_platforms - INFO - Found address from text: Senior System Engineer jobs
+2026-06-26 11:39:08,820 - backend.social_platforms - INFO - Found address from text: Project Engineer jobs
+2026-06-26 11:39:08,820 - backend.social_platforms - INFO - Found address from text: System Administrator jobs
+2026-06-26 11:39:08,820 - backend.social_platforms - INFO - Found address from text: Data Scientist jobs
+2026-06-26 11:39:08,820 - backend.social_platforms - INFO - Found address from text: Information Technology Administrator jobs
+2026-06-26 11:39:08,821 - backend.social_platforms - INFO - Found address from text: Database Administrator jobs
+2026-06-26 11:39:08,821 - backend.social_platforms - INFO - Found address from text: Search Engine Optimization Specialist jobs
+2026-06-26 11:39:08,821 - backend.social_platforms - INFO - Found address from text: Mobile Application Developer jobs
+2026-06-26 11:39:08,821 - backend.social_platforms - INFO - Found address from text: Guest Controls
+2026-06-26 11:39:08,828 - backend.social_platforms - INFO - Found address from text: Don’t have the app? Get it in the Microsoft Store.
+2026-06-26 11:39:08,828 - backend.social_platforms - INFO - Found address from text: Hiring Reel] #AhmedabadJobs #ITjobs #SoftwareDeveloperJobs #TechJobs #MoonTechnolabs …more 350 29 Comments Like Comment Share Join now to see what you are missing Find people you know at Moon Technolabs Browse recommended jobs for you View all updates
+2026-06-26 11:39:08,829 - backend.social_platforms - INFO - Found address from text: and articles Join now Affiliated pages Moon Technolabs INC IT Services and IT Consulting Chicago
+2026-06-26 11:39:08,829 - backend.social_platforms - INFO - Found address from text: Florida Bacancy IT Services and IT Consulting Ahmedabad
+2026-06-26 11:39:08,829 - backend.social_platforms - INFO - Found address from text: Gujarat Brainvire IT Services and IT Consulting Irving
+2026-06-26 11:39:08,829 - backend.social_platforms - INFO - Found address from text: Texas 7Span Information Technology & Services Ahmedabad
+2026-06-26 11:39:08,829 - backend.social_platforms - INFO - Found address from text: Gujarat TatvaSoft Information Technology & Services Ahmedabad
+2026-06-26 11:39:08,829 - backend.social_platforms - INFO - Found address from text: Gujarat Radixweb IT Services and IT Consulting Ahmedabad
+2026-06-26 11:39:08,829 - backend.social_platforms - INFO - Found address from text: Gujarat eSparkBiz IT Services and IT Consulting Ahmedabad
+2026-06-26 11:39:08,829 - backend.social_platforms - INFO - Found address from text: Gujarat Yudiz Solutions IT Services and IT Consulting Ahmedabad
+2026-06-26 11:39:08,830 - backend.social_platforms - INFO - Found address from text: Gujarat Vrinsoft Technology Pvt. Ltd. IT Services and IT Consulting Ahmedabad
+2026-06-26 11:39:08,830 - backend.social_platforms - INFO - Found address from text: Gujarat CMARIX IT Services and IT Consulting Ahmedabad
+2026-06-26 11:39:08,830 - backend.social_platforms - INFO - Found address from text: Gujarat Show more similar pages Show fewer similar pages Browse jobs Developer jobs 73
+2026-06-26 11:39:08,830 - backend.social_platforms - INFO - Found address from text: 513 open jobs Engineer jobs 71
+2026-06-26 11:39:08,830 - backend.social_platforms - INFO - Found address from text: 158 open jobs Python Developer jobs 12
+2026-06-26 11:39:08,830 - backend.social_platforms - INFO - Found address from text: 759 open jobs Project Manager jobs 18
+2026-06-26 11:39:08,830 - backend.social_platforms - INFO - Found address from text: 687 open jobs PHP Developer jobs 6
+2026-06-26 11:39:08,830 - backend.social_platforms - INFO - Found address from text: 106 open jobs Analyst jobs 55
+2026-06-26 11:39:08,830 - backend.social_platforms - INFO - Found address from text: 566 open jobs Senior Content Writer jobs 2
+2026-06-26 11:39:08,831 - backend.social_platforms - INFO - Found address from text: 259 open jobs User Experience Designer jobs 2
+2026-06-26 11:39:08,831 - backend.social_platforms - INFO - Found address from text: 706 open jobs Javascript Developer jobs 14
+2026-06-26 11:39:08,831 - backend.social_platforms - INFO - Found address from text: 295 open jobs Dotnet Developer jobs 8
+2026-06-26 11:39:08,831 - backend.social_platforms - INFO - Found address from text: 372 open jobs Software Engineer jobs 59
+2026-06-26 11:39:08,831 - backend.social_platforms - INFO - Found address from text: 663 open jobs Android Developer jobs 14
+2026-06-26 11:39:08,831 - backend.social_platforms - INFO - Found address from text: 001 open jobs Digital Marketing Manager jobs 2
+2026-06-26 11:39:08,831 - backend.social_platforms - INFO - Found address from text: 469 open jobs Senior Software Engineer jobs 18
+2026-06-26 11:39:08,832 - backend.social_platforms - INFO - Found address from text: 207 open jobs Digital Marketing Specialist jobs 5
+2026-06-26 11:39:08,832 - backend.social_platforms - INFO - Found address from text: 437 open jobs Scientist jobs 2
+2026-06-26 11:39:08,832 - backend.social_platforms - INFO - Found address from text: 584 open jobs Network Developer jobs 45
+2026-06-26 11:39:08,832 - backend.social_platforms - INFO - Found address from text: 869 open jobs Digital Marketing Executive jobs 3
+2026-06-26 11:39:08,832 - backend.social_platforms - INFO - Found address from text: 407 open jobs Human Resources Executive jobs 1
+2026-06-26 11:39:08,832 - backend.social_platforms - INFO - Found address from text: 134 open jobs Business Development Executive jobs 13
+2026-06-26 11:39:08,846 - backend.social_platforms - INFO - Found address from text: and Cookie Policy. LinkedIn LinkedIn is better on the app Don’t have the app? Get it in the Microsoft Store. Open the app
+2026-06-26 11:39:08,850 - backend.social_platforms - INFO - Found address from JSON-LD: C 105A Ganesh Meredian, Opp.Kargil Petrol Pump, Sarkhej - Gandhinagar Highway, Sola, Ahmedabad, GJ, 380060, IN
+2026-06-26 11:39:08,955 - backend.extractor - INFO - Extracted contacts using linkedin parser
+2026-06-26 11:39:08,956 - werkzeug - INFO - 192.168.29.51 - - [26/Jun/2026 11:39:08] "POST /api/extract HTTP/1.1" 200 -
+2026-06-26 11:39:30,164 - __main__ - INFO - Extracting contacts from: https://in.linkedin.com/company/codesdot-solution-llp
+2026-06-26 11:39:30,165 - backend.social_platforms - INFO - Parsing LinkedIn profile: https://in.linkedin.com/company/codesdot-solution-llp
+2026-06-26 11:39:30,165 - backend.social_platforms - ERROR - LinkedIn API error: No module named 'linkedin_api'
+2026-06-26 11:39:30,165 - backend.social_platforms - INFO - Falling back to requests + BeautifulSoup...
+2026-06-26 11:39:30,166 - backend.social_platforms - INFO - Trying URL: https://in.linkedin.com/company/codesdot-solution-llp
+2026-06-26 11:39:31,505 - backend.social_platforms - INFO - Found address-0: 301, 3rd floor,Meredian tower, Nr.UTC , Udhna DarwajaSurat, Gujarat 395002, IN
+2026-06-26 11:39:31,750 - backend.social_platforms - INFO - Found address in meta: 1,385 followers on LinkedIn. Custom-fit IT solutions that suite your every needs
+2026-06-26 11:39:31,750 - backend.social_platforms - INFO - Found address in meta: Established in the year 2015 with an intention to concentrate on the basic computer need of house hold families and IT student, by expanding our business. understood the requirement of business clients of all field in today’s competitive market and also started concentrating on the client’s requirement of Website and Software.
+2026-06-26 11:39:31,750 - backend.social_platforms - INFO - Found address in meta: We have wide range of experience on Modern web technologies for Server-side programming to Client-side programming.
+2026-06-26 11:39:31,775 - backend.social_platforms - INFO - Found address from text: Surat, Gujarat 1,385 followers
+2026-06-26 11:39:31,775 - backend.social_platforms - INFO - Found address from text: Custom-fit IT solutions that suite your every needs
+2026-06-26 11:39:31,775 - backend.social_platforms - INFO - Found address from text: Discover all 12 employees
+2026-06-26 11:39:31,776 - backend.social_platforms - INFO - Found address from text: We have wide range of experience on Modern web technologies for Server-side programming to Client-side programming. Programming technologies we work with are PHP, ASP.NET MVC, C#, Wordpress, Codeigniter, Magento.
+2026-06-26 11:39:31,776 - backend.social_platforms - INFO - Found address from text: We are not behind in Design stuff. Our expertise in design stack are HTML5, CSS3, Javascript, Photoshop, illustrator, JQuery, Ajax, Twitter Bootstrap(Responsive Design), Angular.js. We have proven portfolio of intuitive and super solid flat designs.
+2026-06-26 11:39:31,776 - backend.social_platforms - INFO - Found address from text: We are team of 45+ developers. We can handle any type of problems related to development, web development or design issues.
+2026-06-26 11:39:31,776 - backend.social_platforms - INFO - Found address from text: We have designed our own process of work. We follows SCRUM meeting and Agile development strategy. Daily meetings, Regular updates, quick turnaround time, instant response 24x7, marketing strategy, SEO Plans, Future enhancement.
+2026-06-26 11:39:31,776 - backend.social_platforms - INFO - Found address from text: We are expert to do Creativity. We know the trend and we know the target people. We know what today's people want.
+2026-06-26 11:39:31,777 - backend.social_platforms - INFO - Found address from text: 11-50 employees
+2026-06-26 11:39:31,777 - backend.social_platforms - INFO - Found address from text: Surat, Gujarat
+2026-06-26 11:39:31,777 - backend.social_platforms - INFO - Found address from text: 301, 3rd floor,Meredian tower, Nr.UTC , Udhna Darwaja
+2026-06-26 11:39:31,777 - backend.social_platforms - INFO - Found address from text: Surat, Gujarat 395002, IN
+2026-06-26 11:39:31,777 - backend.social_platforms - INFO - Found address from text: Employees at Codesdot Solution LLP
+2026-06-26 11:39:31,777 - backend.social_platforms - INFO - Found address from text: See all employees
+2026-06-26 11:39:31,777 - backend.social_platforms - INFO - Found address from text: 1,385 followers
+2026-06-26 11:39:31,777 - backend.social_platforms - INFO - Found address from text: Report this post
+2026-06-26 11:39:31,778 - backend.social_platforms - INFO - Found address from text: LinkedIn Skip to main content LinkedIn Top Content People Learning Jobs Games Get the app Sign in Join now Codesdot Solution LLP IT Services and IT Consulting Surat
+2026-06-26 11:39:31,778 - backend.social_platforms - INFO - Found address from text: 385 followers Custom-fit IT solutions that suite your every needs Follow Discover all 12 employees Report this company About us About CodesDot Solutions Established in the year 2015 with an intention to concentrate on the basic computer need of house hold families and IT student
+2026-06-26 11:39:31,785 - backend.social_platforms - INFO - Found address from text: illustrator
+2026-06-26 11:39:31,785 - backend.social_platforms - INFO - Found address from text: Twitter Bootstrap(Responsive Design)
+2026-06-26 11:39:31,785 - backend.social_platforms - INFO - Found address from text: Angular.js. We have proven portfolio of intuitive and super solid flat designs. We are team of 45+ developers. We can handle any type of problems related to development
+2026-06-26 11:39:31,785 - backend.social_platforms - INFO - Found address from text: web development or design issues. We have designed our own process of work. We follows SCRUM meeting and Agile development strategy. Daily meetings
+2026-06-26 11:39:31,785 - backend.social_platforms - INFO - Found address from text: instant response 24x7
+2026-06-26 11:39:31,785 - backend.social_platforms - INFO - Found address from text: marketing strategy
+2026-06-26 11:39:31,786 - backend.social_platforms - INFO - Found address from text: Future enhancement. We are expert to do Creativity. We know the trend and we know the target people. We know what today's people want. Website codesdot.com External link for Codesdot Solution LLP Industry IT Services and IT Consulting Company size 11-50 employees Headquarters Surat
+2026-06-26 11:39:31,786 - backend.social_platforms - INFO - Found address from text: Gujarat Type Privately Held Founded 2015 Locations Primary 301
+2026-06-26 11:39:31,786 - backend.social_platforms - INFO - Found address from text: Meredian tower
+2026-06-26 11:39:31,786 - backend.social_platforms - INFO - Found address from text: Udhna Darwaja Surat
+2026-06-26 11:39:31,786 - backend.social_platforms - INFO - Found address from text: Gujarat 395002
+2026-06-26 11:39:31,786 - backend.social_platforms - INFO - Found address from text: IN Employees at Codesdot Solution LLP Keyur Bhesaniya Sharad D. Nirbhay Bhuva siddhi vansia See all employees Updates Codesdot Solution LLP 1
+2026-06-26 11:39:31,789 - backend.social_platforms - INFO - Found address from text: Are you passionate about creating intelligent systems and solving real-world problems with AI?
+2026-06-26 11:39:31,789 - backend.social_platforms - INFO - Found address from text: This is your opportunity to work with modern technologies, build scalable intelligent applications, and contribute to impactful digital products.
+2026-06-26 11:39:31,804 - backend.social_platforms - INFO - Found address from text: #Hiring #WeAreHiring #AIEngineer #ArtificialIntelligence #MachineLearning #DeepLearning #AIJobs #HiringNow #TechJobs #DeveloperJobs #SoftwareEngineer #DataScience #GenerativeAI #AICareers #MLJobs #Innovation #JobOpening #CareerGrowth #ITJobs #SuratJobs #GujaratJobs #IndiaJobs #JobSearch #OpenToWork #TechHiring #AICommunity #FutureOfWork #DigitalTransformation #EngineeringJobs #CareerOpportunity #HiringAlert #StartupJobs #Technology #TechCareers #AIInnovation #CodesDot #WorkWithUs #LinkedInJobs #Recruitment #NowHiring
+2026-06-26 11:39:31,805 - backend.social_platforms - INFO - Found address from text: View C2PA information
+2026-06-26 11:39:31,805 - backend.social_platforms - INFO - Found address from text: Join CodesDot & Build the Future of Artificial Intelligence Are you passionate about creating intelligent systems and solving real-world problems with AI? CodesDot is looking for a talented AI Engineer to join our growing team and develop innovative AI-powered solutions. This is your opportunity to work with modern technologies
+2026-06-26 11:39:31,805 - backend.social_platforms - INFO - Found address from text: build scalable intelligent applications
+2026-06-26 11:39:31,811 - backend.social_platforms - INFO - Found address from text: Looking for your next career opportunity in the tech industry?
+2026-06-26 11:39:31,811 - backend.social_platforms - INFO - Found address from text: We are expanding and hiring talented professionals who are ready to grow, innovate, and make an impact.
+2026-06-26 11:39:31,819 - backend.social_platforms - INFO - Found address from text: Your next opportunity starts here.
+2026-06-26 11:39:31,820 - backend.social_platforms - INFO - Found address from text: #Hiring #WeAreHiring #HiringNow #JobOpening #TechJobs #CareerOpportunity #Jobs #Recruitment #HiringAlert #OpenToWork #SuratJobs #GujaratJobs #CodesDot #BDE #BusinessDevelopment #BusinessDevelopmentExecutive #AIEngineer #ArtificialIntelligence #MachineLearning #AIJobs #ShopifyDeveloper #ShopifyJobs #DeveloperJobs #SoftwareJobs #ITJobs #TechCareers #CareerGrowth #DigitalTransformation #Innovation #StartupJobs #JobSearch #HiringPost #WorkWithUs #FutureOfWork #Technology #LinkedInJobs #RecruitmentDrive #HiringIndia #CareerGoals #JobAlert
+2026-06-26 11:39:31,821 - backend.social_platforms - INFO - Found address from text: Do you have an eye for clean design and a passion for creating exceptional digital experiences?
+2026-06-26 11:39:31,821 - backend.social_platforms - INFO - Found address from text: Join CodesDot and turn ideas into beautiful, user-friendly interfaces that make an impact.
+2026-06-26 11:39:31,836 - backend.social_platforms - INFO - Found address from text: 14 Comments
+2026-06-26 11:39:31,837 - backend.social_platforms - INFO - Found address from text: CodesDot Solution is looking for a talented AI Developer to join our growing innovation team and create intelligent digital solutions that make a real impact.
+2026-06-26 11:39:31,837 - backend.social_platforms - INFO - Found address from text: If you have experience developing AI models, working with machine learning workflows, and building scalable intelligent applications — this opportunity is for you.
+2026-06-26 11:39:31,841 - backend.social_platforms - INFO - Found address from text: We’re not looking for average.
+2026-06-26 11:39:31,845 - backend.social_platforms - INFO - Found address from text: Build Your Career with CodesDot Looking for your next career opportunity in the tech industry? Join CodesDot and become part of a passionate team creating innovative digital solutions and shaping the future of technology. We are expanding and hiring talented professionals who are ready to grow
+2026-06-26 11:39:31,854 - backend.social_platforms - INFO - Found address from text: user-friendly interfaces that make an impact. We’re looking for a creative UI Designer who loves transforming concepts into modern
+2026-06-26 11:39:31,856 - backend.social_platforms - INFO - Found address from text: 385 followers 1w Report this post Are you passionate about Artificial Intelligence
+2026-06-26 11:39:31,856 - backend.social_platforms - INFO - Found address from text: and next-generation technology? CodesDot Solution is looking for a talented AI Developer to join our growing innovation team and create intelligent digital solutions that make a real impact. If you have experience developing AI models
+2026-06-26 11:39:31,874 - backend.social_platforms - INFO - Found address from text: - Wants real growth (not just a salary)
+2026-06-26 11:39:31,874 - backend.social_platforms - INFO - Found address from text: - Wants to work with a driven team
+2026-06-26 11:39:31,877 - backend.social_platforms - INFO - Found address from text: 12 Comments
+2026-06-26 11:39:31,877 - backend.social_platforms - INFO - Found address from text: Because we don’t just deliver services — we create experiences that drive real business growth.
+2026-06-26 11:39:31,879 - backend.social_platforms - INFO - Found address from text: Your success is our priority at every stage.
+2026-06-26 11:39:31,886 - backend.social_platforms - INFO - Found address from text: Smart planning with measurable outcomes.
+2026-06-26 11:39:31,886 - backend.social_platforms - INFO - Found address from text: Connecting businesses with wider opportunities.
+2026-06-26 11:39:31,893 - backend.social_platforms - INFO - Found address from text: #WhyChooseUs #CodesDot #Innovation #BusinessGrowth #DigitalSolutions #TechCompany #CreativeAgency #ResultsDriven #FutureReady #WeAreHiring #HiringNow #SuratJobs #ShopifyDeveloper
+2026-06-26 11:39:31,894 - backend.social_platforms - INFO - Found address from text: #BusinessDevelopmentExecutive #DotNetDeveloper #TechJobs #DeveloperHiring #BDEJobs #JobOpening #HiringAlert #CareerGrowth #JobsInSurat #JoinOurTeam
+2026-06-26 11:39:31,920 - backend.social_platforms - INFO - Found address from text: If you’re passionate about sales, building connections, and growing your career, we’d love to connect with you!
+2026-06-26 11:39:31,920 - backend.social_platforms - INFO - Found address from text: #WeAreHiring #HiringNow #SuratJobs #ShopifyDeveloper #BusinessDevelopmentExecutive #DotNetDeveloper #TechJobs #DeveloperHiring #BDEJobs #JobOpening #HiringAlert #CareerGrowth #JobsInSurat #JoinOurTeam #LocalCandidatesPreferred
+2026-06-26 11:39:31,920 - backend.social_platforms - INFO - Found address from text: Are you passionate about building intelligent systems and shaping the future with Artificial Intelligence?
+2026-06-26 11:39:31,928 - backend.social_platforms - INFO - Found address from text: building connections
+2026-06-26 11:39:31,943 - backend.social_platforms - INFO - Found address from text: Build and deploy AI-powered applications
+2026-06-26 11:39:31,943 - backend.social_platforms - INFO - Found address from text: Work with data-driven intelligent systems
+2026-06-26 11:39:31,953 - backend.social_platforms - INFO - Found address from text: #WeAreHiring #HiringNow #SuratJobs #ShopifyDeveloper
+2026-06-26 11:39:31,954 - backend.social_platforms - INFO - Found address from text: #BusinessDevelopmentExecutive #DotNetDeveloper #TechJobs #DeveloperHiring #BDEJobs #JobOpening #HiringAlert #CareerGrowth #JobsInSurat #JoinOurTeam #LocalCandidatesPreferred
+2026-06-26 11:39:31,954 - backend.social_platforms - INFO - Found address from text: 2+ Years Experience
+2026-06-26 11:39:31,957 - backend.social_platforms - INFO - Found address from text: Surat We're looking for a skilled .NET Developer with experience in C#
+2026-06-26 11:39:31,968 - backend.social_platforms - INFO - Found address from text: #Hiring #BusinessDevelopment #BDE #SalesJobs #BusinessGrowth #CareerOpportunity #SuratJobs #HiringNow #ITJobs
+2026-06-26 11:39:31,968 - backend.social_platforms - INFO - Found address from text: Find people you know at Codesdot Solution LLP
+2026-06-26 11:39:31,969 - backend.social_platforms - INFO - Found address from text: Slash Star (formerly xR Studio)
+2026-06-26 11:39:31,969 - backend.social_platforms - INFO - Found address from text: Ahmedabad, Gujarat
+2026-06-26 11:39:31,969 - backend.social_platforms - INFO - Found address from text: Dynamic Dreamz
+2026-06-26 11:39:31,971 - backend.social_platforms - INFO - Found address from text: and articles Join now Similar pages Slash Star (formerly xR Studio) IT Services and IT Consulting Vasundhara Infotech IT Services and IT Consulting Surat
+2026-06-26 11:39:31,972 - backend.social_platforms - INFO - Found address from text: Gujarat 8Dots Information Services Ahmedabad
+2026-06-26 11:39:31,972 - backend.social_platforms - INFO - Found address from text: Gujarat Dynamic Dreamz
+2026-06-26 11:39:31,972 - backend.social_platforms - INFO - Found address from text: Instance IT Solutions
+2026-06-26 11:39:31,972 - backend.social_platforms - INFO - Found address from text: Daydreamsoft Infotech LLP
+2026-06-26 11:39:31,972 - backend.social_platforms - INFO - Found address from text: 73,513 open jobs
+2026-06-26 11:39:31,972 - backend.social_platforms - INFO - Found address from text: 1,491 open jobs
+2026-06-26 11:39:31,973 - backend.social_platforms - INFO - Found address from text: 6,106 open jobs
+2026-06-26 11:39:31,973 - backend.social_platforms - INFO - Found address from text: 12,759 open jobs
+2026-06-26 11:39:31,973 - backend.social_platforms - INFO - Found address from text: 59,663 open jobs
+2026-06-26 11:39:31,974 - backend.social_platforms - INFO - Found address from text: Senior Solutions Architect jobs
+2026-06-26 11:39:31,974 - backend.social_platforms - INFO - Found address from text: Product Designer jobs
+2026-06-26 11:39:31,974 - backend.social_platforms - INFO - Found address from text: Mobile Application Developer jobs
+2026-06-26 11:39:31,974 - backend.social_platforms - INFO - Found address from text: Human Resources Specialist jobs
+2026-06-26 11:39:31,975 - backend.social_platforms - INFO - Found address from text: Human Resources Administrator jobs
+2026-06-26 11:39:31,975 - backend.social_platforms - INFO - Found address from text: Human Resources Generalist jobs
+2026-06-26 11:39:31,975 - backend.social_platforms - INFO - Found address from text: Scientist jobs
+2026-06-26 11:39:31,975 - backend.social_platforms - INFO - Found address from text: Guest Controls
+2026-06-26 11:39:31,985 - backend.social_platforms - INFO - Found address from text: Don’t have the app? Get it in the Microsoft Store.
+2026-06-26 11:39:31,985 - backend.social_platforms - INFO - Found address from text: Shopify Premier Partner IT Services and IT Consulting Surat
+2026-06-26 11:39:31,986 - backend.social_platforms - INFO - Found address from text: Gujarat Instance IT Solutions IT Services and IT Consulting Surat
+2026-06-26 11:39:31,986 - backend.social_platforms - INFO - Found address from text: Gujarat Daydreamsoft Infotech LLP IT Services and IT Consulting surat
+2026-06-26 11:39:31,986 - backend.social_platforms - INFO - Found address from text: gujarat Futurelens Technology IT Services and IT Consulting Surat
+2026-06-26 11:39:31,986 - backend.social_platforms - INFO - Found address from text: Gujarat BrainFleck Solutions Software Development Surat
+2026-06-26 11:39:31,986 - backend.social_platforms - INFO - Found address from text: Gujarat Codeline Infotech LLP IT Services and IT Consulting Surat
+2026-06-26 11:39:31,986 - backend.social_platforms - INFO - Found address from text: Gujarat La Net Team Software Solution Pvt Ltd. IT Services and IT Consulting Surat
+2026-06-26 11:39:31,987 - backend.social_platforms - INFO - Found address from text: Gujarat Show more similar pages Show fewer similar pages Browse jobs Developer jobs 73
+2026-06-26 11:39:31,987 - backend.social_platforms - INFO - Found address from text: 513 open jobs Web Development Intern jobs 1
+2026-06-26 11:39:31,987 - backend.social_platforms - INFO - Found address from text: 491 open jobs PHP Developer jobs 6
+2026-06-26 11:39:31,987 - backend.social_platforms - INFO - Found address from text: 106 open jobs Python Developer jobs 12
+2026-06-26 11:39:31,987 - backend.social_platforms - INFO - Found address from text: 759 open jobs Software Engineer jobs 59
+2026-06-26 11:39:31,990 - backend.social_platforms - INFO - Found address from text: and Cookie Policy. LinkedIn LinkedIn is better on the app Don’t have the app? Get it in the Microsoft Store. Open the app
+2026-06-26 11:39:31,994 - backend.social_platforms - INFO - Found address from JSON-LD:  301,  3rd floor,Meredian tower, Nr.UTC , Udhna Darwaja, Surat, Gujarat, 395002, IN
+2026-06-26 11:39:32,049 - backend.extractor - INFO - Extracted contacts using linkedin parser
+2026-06-26 11:39:32,050 - werkzeug - INFO - 192.168.29.51 - - [26/Jun/2026 11:39:32] "POST /api/extract HTTP/1.1" 200 -
+2026-06-26 11:47:14,306 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://100.64.100.6:5000
+2026-06-26 11:47:14,306 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2026-06-26 11:47:15,717 - werkzeug - INFO - 100.64.100.6 - - [26/Jun/2026 11:47:15] "GET / HTTP/1.1" 200 -
+2026-06-26 11:47:15,851 - werkzeug - INFO - 100.64.100.6 - - [26/Jun/2026 11:47:15] "GET /static/css/style.css HTTP/1.1" 200 -
+2026-06-26 11:47:15,855 - werkzeug - INFO - 100.64.100.6 - - [26/Jun/2026 11:47:15] "GET /static/js/app.js HTTP/1.1" 200 -
+2026-06-26 11:47:15,935 - werkzeug - INFO - 100.64.100.6 - - [26/Jun/2026 11:47:15] "GET /static/js/app.js HTTP/1.1" 200 -
+2026-06-26 11:47:18,822 - werkzeug - INFO - 100.64.100.6 - - [26/Jun/2026 11:47:18] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-06-26 11:47:27,731 - __main__ - INFO - Extracting contacts from: https://in.linkedin.com/company/codesdot-solution-llp
+2026-06-26 11:47:27,731 - backend.social_platforms - INFO - Parsing LinkedIn profile: https://in.linkedin.com/company/codesdot-solution-llp
+2026-06-26 11:47:27,732 - backend.social_platforms - ERROR - LinkedIn API error: No module named 'linkedin_api'
+2026-06-26 11:47:27,732 - backend.social_platforms - INFO - Falling back to requests + BeautifulSoup...
+2026-06-26 11:47:27,732 - backend.social_platforms - INFO - Trying URL: https://in.linkedin.com/company/codesdot-solution-llp
+2026-06-26 11:47:29,116 - backend.social_platforms - INFO - Found address-0: 301, 3rd floor,Meredian tower, Nr.UTC , Udhna DarwajaSurat, Gujarat 395002, IN
+2026-06-26 11:47:29,238 - backend.social_platforms - INFO - Requests extraction - Phone: +919023813983, Email: hr@codesdot.com, Address: 301, 3 rd floor,Meredian tower, Nr.UTC , Udhna Darwaja Surat, Gujarat 395002, IN
+2026-06-26 11:47:29,238 - backend.extractor - INFO - Extracted contacts using linkedin parser
+2026-06-26 11:47:29,239 - werkzeug - INFO - 100.64.100.6 - - [26/Jun/2026 11:47:29] "POST /api/extract HTTP/1.1" 200 -
+2026-06-26 11:47:31,190 - werkzeug - INFO - 100.64.100.6 - - [26/Jun/2026 11:47:31] "GET / HTTP/1.1" 200 -
+2026-06-26 11:47:31,219 - werkzeug - INFO - 100.64.100.6 - - [26/Jun/2026 11:47:31] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-06-26 11:47:31,231 - werkzeug - INFO - 100.64.100.6 - - [26/Jun/2026 11:47:31] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2026-06-26 11:47:31,358 - werkzeug - INFO - 100.64.100.6 - - [26/Jun/2026 11:47:31] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2026-06-26 11:47:33,516 - __main__ - INFO - Extracting contacts from: https://in.linkedin.com/company/moontechnolabs
+2026-06-26 11:47:33,517 - backend.social_platforms - INFO - Parsing LinkedIn profile: https://in.linkedin.com/company/moontechnolabs
+2026-06-26 11:47:33,517 - backend.social_platforms - ERROR - LinkedIn API error: No module named 'linkedin_api'
+2026-06-26 11:47:33,518 - backend.social_platforms - INFO - Falling back to requests + BeautifulSoup...
+2026-06-26 11:47:33,518 - backend.social_platforms - INFO - Trying URL: https://in.linkedin.com/company/moontechnolabs
+2026-06-26 11:47:35,709 - backend.social_platforms - INFO - Found address-0: C 105A Ganesh Meredian, Opp.Kargil Petrol Pump, Sarkhej - Gandhinagar Highway, SolaAhmedabad, GJ 380060, IN
+2026-06-26 11:47:35,711 - backend.social_platforms - INFO - Found address-1: 205 N Michigan AveChicago, Illinois 60601, US
+2026-06-26 11:47:35,712 - backend.social_platforms - INFO - Found address-2: Pflugerville, Texas 78660, US
+2026-06-26 11:47:35,825 - backend.social_platforms - INFO - Requests extraction - Phone: None, Email: sales@moontechnolabs.com, Address: Address 1: C 105 A Ganesh Meredian, Opp.Kargil Petrol Pump, Sarkhej - Gandhinagar Highway, Sola Ahmedabad, GJ 380060, IN
+
+Address 2: 205 N Michigan Ave Chicago, Illinois 60601, US
+
+Address 3: Pflugerville, Texas 78660, US
+2026-06-26 11:47:35,825 - backend.extractor - INFO - Extracted contacts using linkedin parser
+2026-06-26 11:47:35,826 - werkzeug - INFO - 100.64.100.6 - - [26/Jun/2026 11:47:35] "POST /api/extract HTTP/1.1" 200 -
+2026-06-26 11:48:08,303 - werkzeug - INFO - 100.64.100.6 - - [26/Jun/2026 11:48:08] "GET / HTTP/1.1" 200 -
+2026-06-26 11:48:08,347 - werkzeug - INFO - 100.64.100.6 - - [26/Jun/2026 11:48:08] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-06-26 11:48:08,351 - werkzeug - INFO - 100.64.100.6 - - [26/Jun/2026 11:48:08] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2026-06-26 11:48:08,492 - werkzeug - INFO - 100.64.100.6 - - [26/Jun/2026 11:48:08] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2026-06-26 11:48:10,476 - __main__ - INFO - Extracting contacts from: https://www.linkedin.com/company/grewontech/
+2026-06-26 11:48:10,476 - backend.social_platforms - INFO - Parsing LinkedIn profile: https://www.linkedin.com/company/grewontech/
+2026-06-26 11:48:10,477 - backend.social_platforms - ERROR - LinkedIn API error: No module named 'linkedin_api'
+2026-06-26 11:48:10,477 - backend.social_platforms - INFO - Falling back to requests + BeautifulSoup...
+2026-06-26 11:48:10,477 - backend.social_platforms - INFO - Trying URL: https://www.linkedin.com/company/grewontech/
+2026-06-26 11:48:11,721 - backend.social_platforms - INFO - Found address-0: Green Road4052 - 4055 Sliver Business Point VIP CircleSurat, Gujarat 394105, IN
+2026-06-26 11:48:11,846 - backend.social_platforms - INFO - Requests extraction - Phone: +91 97121 30315, Email: hr@grewon.com, Address: Green Road 4052 - 4055 Sliver Business Point VIP Circle Surat, Gujarat 394105, IN
+2026-06-26 11:48:11,846 - backend.extractor - INFO - Extracted contacts using linkedin parser
+2026-06-26 11:48:11,846 - werkzeug - INFO - 100.64.100.6 - - [26/Jun/2026 11:48:11] "POST /api/extract HTTP/1.1" 200 -

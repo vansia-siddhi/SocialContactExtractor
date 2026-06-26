@@ -65,31 +65,20 @@ class SocialPlatformParser:
                 return phone
         return None
 
-    def _extract_address_from_text(self, text: str) -> Optional[str]:
-        """Extract address from text"""
-        address_patterns = [
-            r'\d{1,5}\s+[\w\s,]+(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Lane|Ln|Drive|Dr|Way|Place|Pl|Court|Ct|Park|Pkwy)',
-            r'[\w\s,]+(?:Tower|Building|Complex|Park|Centre|Center|Office|House|Society|Apartment|Flats|Floor|Corner|Meridian)',
-            r'[\w\s,]+(?:Surat|Mumbai|Delhi|Ahmedabad|Bangalore|Chennai|Kolkata|Hyderabad|Pune|Gujarat|Maharashtra)',
-            r'[A-Za-z0-9\s,]+(?:GJ|MH|KA|TN|DL|WB|UP|RJ|HR|PB|KL|TG)\s*\d{5,6}',
-            r'\d{5,6}\s*[\w\s,]+',
-            r'[\w\s]+,\s*[\w\s]+,\s*[\w\s]+\s*\d{5,6}',
-        ]
-
-        for pattern in address_patterns:
-            matches = re.findall(pattern, text, re.IGNORECASE)
-            if matches:
-                address = matches[0].strip()
-                address = re.sub(r'\s+', ' ', address)
-                if len(address) > 10 and len(address) < 300:
-                    if not any(keyword in address.lower() for keyword in
-                               ['followers', 'following', 'posts', 'likes', 'comments']):
-                        return address[:200]
-        return None
-
     def _is_valid_address(self, text: str) -> bool:
-        """Check if text is a valid address"""
+        """Check if text is a valid address (not company description)"""
         if not text or len(text) < 8:
+            return False
+
+        # Skip text with non-address keywords
+        skip_keywords = ['followers', 'employee', 'developer', 'services', 'solutions',
+                         'technology', 'software', 'website', 'programming', 'design',
+                         'excellence', 'innovation', 'product', 'engineering', 'development',
+                         'established', 'intention', 'concentrate', 'expanding', 'competitive',
+                         'market', 'modern', 'technologies', 'expertise', 'portfolio',
+                         'intuitive', 'solid', 'designs', 'team', 'handle', 'problems',
+                         'custom-fit', 'suite', 'needs', 'discover', 'employees']
+        if any(keyword in text.lower() for keyword in skip_keywords):
             return False
 
         address_indicators = [
@@ -99,15 +88,29 @@ class SocialPlatformParser:
             'office', 'house', 'society', 'apartment', 'floor', 'corner',
             'surat', 'mumbai', 'delhi', 'ahmedabad', 'bangalore', 'chennai',
             'kolkata', 'hyderabad', 'pune', 'gujarat', 'maharashtra',
-            'india', 'meridian', 'chicago', 'texas', 'california'
+            'india', 'meridian', 'chicago', 'texas', 'california',
+            'usa', 'united states', 'uk', 'united kingdom', 'europe',
+            'gj', 'mh', 'ka', 'tn', 'dl', 'wb', 'up', 'rj', 'hr', 'pb'
         ]
 
         has_numbers = any(char.isdigit() for char in text)
         has_address_keywords = any(keyword in text.lower() for keyword in address_indicators)
 
+        # Must have either numbers OR address keywords to be considered an address
         return has_numbers or has_address_keywords
 
-    def _clean_and_format_single_address(self, address: str, address_num: int = None) -> str:
+    def _clean_address(self, address: str) -> str:
+        """Clean up address text"""
+        if not address:
+            return address
+
+        address = re.sub(r'Get directions', '', address, flags=re.IGNORECASE)
+        address = re.sub(r'^Primary', '', address, flags=re.IGNORECASE)
+        address = re.sub(r'\s+', ' ', address)
+        address = re.sub(r';+$', '', address)
+        return address.strip()
+
+    def _clean_and_format_single_address(self, address: str) -> str:
         """Clean and format a single address with proper spacing."""
         if not address:
             return address
@@ -118,6 +121,7 @@ class SocialPlatformParser:
         address = re.sub(r'\s+', ' ', address)
         address = address.strip()
 
+        # Add proper spacing
         address = re.sub(r'(\d+)([A-Za-z])', r'\1 \2', address)
         address = re.sub(r'([A-Za-z])(\d+)', r'\1 \2', address)
         address = re.sub(r'([A-Za-z])(\d{5,6})', r'\1 \2', address)
@@ -132,56 +136,53 @@ class SocialPlatformParser:
         address = re.sub(r'\s+', ' ', address)
         address = address.strip()
 
-        if address_num is not None:
-            return f"Address {address_num}: {address}"
-
         return address
 
-    def _format_address_with_proper_spacing(self, address: str) -> str:
-        """Format address with proper spacing and numbering."""
-        if not address:
-            return address
+    def _format_multiple_addresses(self, addresses: List[str]) -> str:
+        """Format multiple addresses with numbering and spacing"""
+        if not addresses:
+            return None
 
-        if '\n' in address:
-            lines = address.split('\n')
-            formatted_lines = []
-            address_counter = 1
-            for line in lines:
-                line = line.strip()
-                if line and self._is_valid_address(line):
-                    formatted_line = self._clean_and_format_single_address(line, address_counter)
-                    if formatted_line:
-                        formatted_lines.append(formatted_line)
-                        address_counter += 1
-            if formatted_lines:
-                return '\n'.join(formatted_lines)
+        # Clean and validate each address
+        cleaned_addresses = []
+        seen = set()
 
-        numbered_pattern = r'(\d+\.\s*[^\d]+?)(?=\s*\d+\.\s*|$)'
-        matches = re.findall(numbered_pattern, address)
+        for addr in addresses:
+            if not addr:
+                continue
 
-        if len(matches) > 1:
-            formatted_addresses = []
-            address_counter = 1
-            for match in matches:
-                clean_addr = match.strip()
-                clean_addr = re.sub(r'Get directions', '', clean_addr, flags=re.IGNORECASE)
-                if self._is_valid_address(clean_addr):
-                    formatted_addr = self._clean_and_format_single_address(clean_addr, address_counter)
-                    if formatted_addr:
-                        formatted_addresses.append(formatted_addr)
-                        address_counter += 1
+            clean_addr = self._clean_address(addr)
 
-            if formatted_addresses:
-                return '\n'.join(formatted_addresses)
+            if not clean_addr or len(clean_addr) < 5:
+                continue
 
-        if self._is_valid_address(address):
-            return self._clean_and_format_single_address(address)
+            # Skip if it contains non-address keywords
+            if not self._is_valid_address(clean_addr):
+                continue
 
-        return None
+            if clean_addr.lower() in seen:
+                continue
+
+            cleaned_addresses.append(clean_addr)
+            seen.add(clean_addr.lower())
+
+        if not cleaned_addresses:
+            return None
+
+        if len(cleaned_addresses) == 1:
+            return self._clean_and_format_single_address(cleaned_addresses[0])
+
+        # Format with "Address X:" numbering
+        formatted = []
+        for i, addr in enumerate(cleaned_addresses, 1):
+            formatted_addr = self._clean_and_format_single_address(addr)
+            formatted.append(f"Address {i}: {formatted_addr}")
+
+        return "\n\n".join(formatted)
 
 
 class LinkedInParser(SocialPlatformParser):
-    """Parser for LinkedIn profiles - Hybrid approach (API + Fallback)"""
+    """Parser for LinkedIn profiles - Extracts ONLY location/address data"""
 
     def parse(self, url: str) -> Dict[str, Optional[str]]:
         logger.info(f"Parsing LinkedIn profile: {url}")
@@ -203,7 +204,6 @@ class LinkedInParser(SocialPlatformParser):
         """Try to extract data using linkedin-api"""
         try:
             from linkedin_api import Linkedin
-            import os
 
             username = os.environ.get('LINKEDIN_USERNAME')
             password = os.environ.get('LINKEDIN_PASSWORD')
@@ -223,10 +223,7 @@ class LinkedInParser(SocialPlatformParser):
             # Extract data
             email = self._extract_email_from_data(company_data)
             phone = self._extract_phone_from_data(company_data)
-            office = self._extract_address_from_data(company_data)
-
-            if office and office != 'Not found':
-                office = self._format_address_with_proper_spacing(office)
+            office = self._extract_locations_from_data(company_data)
 
             logger.info(f"LinkedIn API extraction - Phone: {phone}, Email: {email}, Address: {office}")
 
@@ -275,11 +272,8 @@ class LinkedInParser(SocialPlatformParser):
             # Extract phone
             phone = self._extract_phone(text)
 
-            # Extract address
-            office = self._extract_linkedin_address(soup, text)
-
-            if office and office != 'Not found':
-                office = self._format_address_with_proper_spacing(office)
+            # Extract ONLY locations/addresses
+            office = self._extract_linkedin_locations(soup)
 
             logger.info(f"Requests extraction - Phone: {phone}, Email: {email}, Address: {office}")
 
@@ -314,82 +308,131 @@ class LinkedInParser(SocialPlatformParser):
                 return name
         return None
 
-    def _extract_linkedin_address(self, soup: BeautifulSoup, text: str) -> Optional[str]:
-        """Extract address from LinkedIn using multiple methods"""
+    def _extract_linkedin_locations(self, soup: BeautifulSoup) -> Optional[str]:
+        """
+        Extract ONLY locations/addresses from LinkedIn.
+        Looks specifically for location sections, not random text.
+        """
+        all_addresses = []
+        seen = set()
+
         try:
-            # Method 1: Look for address-0, address-1 IDs
-            for i in range(10):
+            # Method 1: Look for location section with "Locations" heading
+            locations_headers = soup.find_all(['h2', 'h3', 'h4', 'div'], string=re.compile(r'Locations|Location', re.IGNORECASE))
+
+            for header in locations_headers:
+                parent = header.parent
+                if parent:
+                    address_elements = parent.find_all(['div', 'span', 'p'], class_=re.compile(r'address|location|org-location', re.IGNORECASE))
+                    for elem in address_elements:
+                        address_text = elem.get_text(strip=True)
+                        if address_text and len(address_text) > 10:
+                            clean_addr = self._clean_address(address_text)
+                            if clean_addr and clean_addr.lower() not in seen:
+                                if self._is_valid_address(clean_addr):
+                                    all_addresses.append(clean_addr)
+                                    seen.add(clean_addr.lower())
+                                    logger.info(f"Found location from section: {clean_addr}")
+
+            # Method 2: Look for org-location elements
+            location_elements = soup.select('.org-location, .org-locations, .pv-entity__location')
+            for elem in location_elements:
+                address_text = elem.get_text(strip=True)
+                if address_text and len(address_text) > 10:
+                    clean_addr = self._clean_address(address_text)
+                    if clean_addr and clean_addr.lower() not in seen:
+                        if self._is_valid_address(clean_addr):
+                            all_addresses.append(clean_addr)
+                            seen.add(clean_addr.lower())
+                            logger.info(f"Found location from org-location: {clean_addr}")
+
+            # Method 3: Look for address-0, address-1 IDs
+            for i in range(20):
                 address_element = soup.find(id=f'address-{i}')
                 if address_element:
                     address_text = address_element.get_text(strip=True)
-                    if address_text and len(address_text) > 5:
-                        address_text = self._clean_address(address_text)
-                        if self._is_valid_address(address_text):
-                            logger.info(f"Found address-{i}: {address_text}")
-                            return address_text
+                    if address_text and len(address_text) > 10:
+                        clean_addr = self._clean_address(address_text)
+                        if clean_addr and clean_addr.lower() not in seen:
+                            if self._is_valid_address(clean_addr):
+                                all_addresses.append(clean_addr)
+                                seen.add(clean_addr.lower())
+                                logger.info(f"Found address-{i}: {clean_addr}")
 
-            # Method 2: Look for location selectors
-            location_selectors = [
-                '.pv-top-card-section__location',
-                '.pv-top-card--list .t-black--light',
-                '[data-field="location"]',
-                '.pv-top-card .pv-top-card-section__location',
-                '.org-location',
-                '.org-locations',
-                '.pv-entity__location',
-                '.pv-about-section .pv-about__summary-text',
-                '.company-location',
-                '.headquarters',
-                '.location',
-                '.address',
-            ]
+            # Method 4: Look for "Get directions" links
+            directions_links = soup.find_all('a', string=re.compile(r'Get directions', re.IGNORECASE))
+            for link in directions_links:
+                parent = link.parent
+                if parent:
+                    address_text = parent.get_text(strip=True)
+                    address_text = re.sub(r'Get directions', '', address_text, flags=re.IGNORECASE)
+                    address_text = address_text.strip()
+                    if address_text and len(address_text) > 10:
+                        clean_addr = self._clean_address(address_text)
+                        if clean_addr and clean_addr.lower() not in seen:
+                            if self._is_valid_address(clean_addr):
+                                all_addresses.append(clean_addr)
+                                seen.add(clean_addr.lower())
+                                logger.info(f"Found location from 'Get directions': {clean_addr}")
 
-            for selector in location_selectors:
-                elements = soup.select(selector)
-                for element in elements:
-                    text_content = element.get_text(strip=True)
-                    if text_content and len(text_content) > 5:
-                        text_content = self._clean_address(text_content)
-                        if self._is_valid_address(text_content):
-                            logger.info(f"Found address from selector {selector}: {text_content}")
-                            return text_content
+            # Method 5: Look for address in about section with patterns
+            about_section = soup.find('section', class_=re.compile(r'about', re.IGNORECASE))
+            if about_section:
+                text = about_section.get_text()
+                address_matches = re.findall(r'[A-Za-z\s,]+(?:GJ|MH|KA|TN|DL|WB|UP|RJ|HR|PB|KL|TG)\s*\d{5,6}', text)
+                for addr in address_matches:
+                    clean_addr = self._clean_address(addr)
+                    if clean_addr and clean_addr.lower() not in seen:
+                        if self._is_valid_address(clean_addr):
+                            all_addresses.append(clean_addr)
+                            seen.add(clean_addr.lower())
+                            logger.info(f"Found address from about section: {clean_addr}")
 
-            # Method 3: Look for address in meta tags
-            meta_selectors = [
-                'meta[property="og:description"]',
-                'meta[name="description"]',
-                'meta[property="og:title"]',
-            ]
-
-            for selector in meta_selectors:
-                elements = soup.select(selector)
-                for element in elements:
-                    content = element.get('content', '')
-                    if content:
-                        address = self._extract_address_from_text(content)
-                        if address and self._is_valid_address(address):
-                            logger.info(f"Found address in meta: {address}")
-                            return address
-
-            # Method 4: Extract from text
-            address = self._extract_address_from_text(text)
-            if address and self._is_valid_address(address):
-                logger.info(f"Found address from text: {address}")
-                return address
+            # Format addresses
+            if all_addresses:
+                return self._format_multiple_addresses(all_addresses)
 
             return None
 
         except Exception as e:
-            logger.error(f"Error extracting LinkedIn address: {str(e)}")
+            logger.error(f"Error extracting LinkedIn locations: {str(e)}")
             return None
 
-    def _clean_address(self, address: str) -> str:
-        """Clean up address text"""
-        address = re.sub(r'Get directions', '', address, flags=re.IGNORECASE)
-        address = re.sub(r'^Primary', '', address, flags=re.IGNORECASE)
-        address = re.sub(r'\s+', ' ', address)
-        address = re.sub(r';+$', '', address)
-        return address.strip()
+    def _extract_locations_from_data(self, data: dict) -> Optional[str]:
+        """Extract ONLY locations from company data (API method)"""
+        addresses = []
+        seen = set()
+
+        # Check headquarters
+        if 'headquarters' in data:
+            hq = data['headquarters']
+            if hq:
+                if isinstance(hq, dict):
+                    for key in ['address', 'location', 'streetAddress', 'formattedAddress']:
+                        if key in hq and hq[key]:
+                            addr = self._clean_address(str(hq[key]))
+                            if addr and addr.lower() not in seen and self._is_valid_address(addr):
+                                addresses.append(addr)
+                                seen.add(addr.lower())
+
+        # Check locations
+        if 'locations' in data:
+            for loc in data['locations']:
+                if isinstance(loc, dict):
+                    location_name = loc.get('name', '')
+                    for key in ['address', 'location', 'streetAddress', 'formattedAddress']:
+                        if key in loc and loc[key]:
+                            addr = self._clean_address(str(loc[key]))
+                            if addr and addr.lower() not in seen and self._is_valid_address(addr):
+                                if location_name and location_name not in addr:
+                                    addr = f"{location_name}: {addr}"
+                                addresses.append(addr)
+                                seen.add(addr.lower())
+
+        if addresses:
+            return self._format_multiple_addresses(addresses)
+
+        return None
 
     def _extract_email_from_data(self, data: dict) -> Optional[str]:
         """Extract email from company data"""
@@ -431,55 +474,7 @@ class LinkedInParser(SocialPlatformParser):
 
         return None
 
-    def _extract_address_from_data(self, data: dict) -> Optional[str]:
-        """Extract office address from company data"""
-        addresses = []
-        seen = set()
 
-        if 'headquarters' in data:
-            hq = data['headquarters']
-            if hq:
-                if isinstance(hq, dict):
-                    address = hq.get('address', '')
-                    if address and address not in seen:
-                        addresses.append(address)
-                        seen.add(address)
-
-        if 'locations' in data:
-            for loc in data['locations']:
-                if isinstance(loc, dict):
-                    address = loc.get('address', '')
-                    if address and address not in seen:
-                        addresses.append(address)
-                        seen.add(address)
-
-        if addresses:
-            cleaned = []
-            for addr in addresses:
-                addr = re.sub(r'\s+', ' ', addr).strip()
-                if addr and self._is_valid_address(addr):
-                    cleaned.append(addr)
-
-            if cleaned:
-                unique = []
-                seen = set()
-                for addr in cleaned:
-                    if addr.lower() not in seen:
-                        unique.append(addr)
-                        seen.add(addr.lower())
-
-                if len(unique) == 1:
-                    return unique[0]
-                else:
-                    formatted = []
-                    for i, addr in enumerate(unique, 1):
-                        formatted.append(f"{i}. {addr}")
-                    return "\n".join(formatted)
-
-        return None
-
-
-# Keep the rest of the parsers unchanged
 class InstagramParser(SocialPlatformParser):
     def parse(self, url: str) -> Dict[str, Optional[str]]:
         logger.info(f"Parsing Instagram profile: {url}")
@@ -490,14 +485,44 @@ class InstagramParser(SocialPlatformParser):
         text = soup.get_text()
         email = self._extract_email(text)
         phone = self._extract_phone(text)
-        address = self._extract_address_from_text(text)
+        address = None
+        bio_selectors = ['.bio', '._aaqe', '.x9f619']
+        for selector in bio_selectors:
+            elements = soup.select(selector)
+            for element in elements:
+                text_content = element.get_text(strip=True)
+                if self._is_valid_address(text_content):
+                    address = text_content
+                    break
+            if address:
+                break
+        if not address:
+            address = self._extract_address_from_text(text)
         if address:
-            address = self._format_address_with_proper_spacing(address)
+            address = self._format_multiple_addresses([address]) if isinstance(address, str) else address
         return {
             'phone': phone if phone else 'Not found',
             'email': email if email else 'Not found',
             'office': address if address else 'Not found'
         }
+
+    def _extract_address_from_text(self, text: str) -> Optional[str]:
+        address_patterns = [
+            r'\d{1,5}\s+[\w\s,]+(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Lane|Ln|Drive|Dr|Way|Place|Pl|Court|Ct|Park|Pkwy)',
+            r'[\w\s,]+(?:Tower|Building|Complex|Park|Centre|Center|Office|House|Society|Apartment|Flats|Floor|Corner|Meridian)',
+            r'[\w\s,]+(?:Surat|Mumbai|Delhi|Ahmedabad|Bangalore|Chennai|Kolkata|Hyderabad|Pune|Gujarat|Maharashtra)',
+            r'[A-Za-z0-9\s,]+(?:GJ|MH|KA|TN|DL|WB|UP|RJ|HR|PB|KL|TG)\s*\d{5,6}',
+        ]
+        for pattern in address_patterns:
+            matches = re.findall(pattern, text, re.IGNORECASE)
+            if matches:
+                address = matches[0].strip()
+                address = re.sub(r'\s+', ' ', address)
+                if len(address) > 10 and len(address) < 300:
+                    if not any(keyword in address.lower() for keyword in
+                               ['followers', 'following', 'posts', 'likes', 'comments']):
+                        return address[:200]
+        return None
 
 
 class FacebookParser(SocialPlatformParser):
@@ -512,12 +537,29 @@ class FacebookParser(SocialPlatformParser):
         phone = self._extract_phone(text)
         address = self._extract_address_from_text(text)
         if address:
-            address = self._format_address_with_proper_spacing(address)
+            address = self._format_multiple_addresses([address]) if isinstance(address, str) else address
         return {
             'phone': phone if phone else 'Not found',
             'email': email if email else 'Not found',
             'office': address if address else 'Not found'
         }
+
+    def _extract_address_from_text(self, text: str) -> Optional[str]:
+        address_patterns = [
+            r'\d{1,5}\s+[\w\s,]+(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Lane|Ln|Drive|Dr|Way|Place|Pl|Court|Ct|Park|Pkwy)',
+            r'[\w\s,]+(?:Tower|Building|Complex|Park|Centre|Center|Office|House|Society)',
+            r'[\w\s,]+(?:Surat|Mumbai|Delhi|Ahmedabad|Bangalore|Chennai|Kolkata|Hyderabad|Pune|Gujarat)',
+            r'[A-Za-z0-9\s,]+(?:GJ|MH|KA|TN|DL|WB|UP|RJ|HR|PB|KL|TG)\s*\d{5,6}',
+        ]
+        for pattern in address_patterns:
+            matches = re.findall(pattern, text, re.IGNORECASE)
+            if matches:
+                address = matches[0].strip()
+                address = re.sub(r'\s+', ' ', address)
+                if len(address) > 10 and len(address) < 300:
+                    if not any(keyword in address.lower() for keyword in ['followers', 'following', 'posts', 'likes']):
+                        return address[:200]
+        return None
 
 
 class TwitterParser(SocialPlatformParser):
@@ -532,12 +574,28 @@ class TwitterParser(SocialPlatformParser):
         phone = self._extract_phone(text)
         address = self._extract_address_from_text(text)
         if address:
-            address = self._format_address_with_proper_spacing(address)
+            address = self._format_multiple_addresses([address]) if isinstance(address, str) else address
         return {
             'phone': phone if phone else 'Not found',
             'email': email if email else 'Not found',
             'office': address if address else 'Not found'
         }
+
+    def _extract_address_from_text(self, text: str) -> Optional[str]:
+        address_patterns = [
+            r'\d{1,5}\s+[\w\s,]+(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Lane|Ln|Drive|Dr|Way|Place|Pl|Court|Ct|Park|Pkwy)',
+            r'[\w\s,]+(?:Tower|Building|Complex|Park|Centre|Center|Office|House|Society)',
+            r'[\w\s,]+(?:Surat|Mumbai|Delhi|Ahmedabad|Bangalore|Chennai|Kolkata|Hyderabad|Pune|Gujarat)',
+        ]
+        for pattern in address_patterns:
+            matches = re.findall(pattern, text, re.IGNORECASE)
+            if matches:
+                address = matches[0].strip()
+                address = re.sub(r'\s+', ' ', address)
+                if len(address) > 10 and len(address) < 300:
+                    if not any(keyword in address.lower() for keyword in ['followers', 'following', 'posts', 'likes']):
+                        return address[:200]
+        return None
 
 
 class YouTubeParser(SocialPlatformParser):
@@ -552,12 +610,28 @@ class YouTubeParser(SocialPlatformParser):
         phone = self._extract_phone(text)
         address = self._extract_address_from_text(text)
         if address:
-            address = self._format_address_with_proper_spacing(address)
+            address = self._format_multiple_addresses([address]) if isinstance(address, str) else address
         return {
             'phone': phone if phone else 'Not found',
             'email': email if email else 'Not found',
             'office': address if address else 'Not found'
         }
+
+    def _extract_address_from_text(self, text: str) -> Optional[str]:
+        address_patterns = [
+            r'\d{1,5}\s+[\w\s,]+(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Lane|Ln|Drive|Dr|Way|Place|Pl|Court|Ct|Park|Pkwy)',
+            r'[\w\s,]+(?:Tower|Building|Complex|Park|Centre|Center|Office|House|Society)',
+            r'[\w\s,]+(?:Surat|Mumbai|Delhi|Ahmedabad|Bangalore|Chennai|Kolkata|Hyderabad|Pune|Gujarat)',
+        ]
+        for pattern in address_patterns:
+            matches = re.findall(pattern, text, re.IGNORECASE)
+            if matches:
+                address = matches[0].strip()
+                address = re.sub(r'\s+', ' ', address)
+                if len(address) > 10 and len(address) < 300:
+                    if not any(keyword in address.lower() for keyword in ['followers', 'following', 'posts', 'likes']):
+                        return address[:200]
+        return None
 
 
 class GenericParser(SocialPlatformParser):
@@ -571,10 +645,26 @@ class GenericParser(SocialPlatformParser):
             email = self._extract_email(text)
             address = self._extract_address_from_text(text)
             if address:
-                address = self._format_address_with_proper_spacing(address)
+                address = self._format_multiple_addresses([address]) if isinstance(address, str) else address
             return {
                 'phone': phone if phone else 'Not found',
                 'email': email if email else 'Not found',
                 'office': address if address else 'Not found'
             }
         return {'phone': 'Not found', 'email': 'Not found', 'office': 'Not found'}
+
+    def _extract_address_from_text(self, text: str) -> Optional[str]:
+        address_patterns = [
+            r'\d{1,5}\s+[\w\s,]+(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Lane|Ln|Drive|Dr|Way|Place|Pl|Court|Ct|Park|Pkwy)',
+            r'[\w\s,]+(?:Tower|Building|Complex|Park|Centre|Center|Office|House|Society)',
+            r'[\w\s,]+(?:Surat|Mumbai|Delhi|Ahmedabad|Bangalore|Chennai|Kolkata|Hyderabad|Pune|Gujarat)',
+        ]
+        for pattern in address_patterns:
+            matches = re.findall(pattern, text, re.IGNORECASE)
+            if matches:
+                address = matches[0].strip()
+                address = re.sub(r'\s+', ' ', address)
+                if len(address) > 10 and len(address) < 300:
+                    if not any(keyword in address.lower() for keyword in ['followers', 'following', 'posts', 'likes']):
+                        return address[:200]
+        return None
