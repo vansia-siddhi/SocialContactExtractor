@@ -4,7 +4,6 @@ from bs4 import BeautifulSoup
 from typing import Dict, Optional, List
 import logging
 import os
-import json
 
 logger = logging.getLogger(__name__)
 
@@ -119,6 +118,7 @@ class SocialPlatformParser:
         has_numbers = any(char.isdigit() for char in text)
         has_address_keywords = any(keyword in text.lower() for keyword in address_indicators)
 
+        # Must have either numbers OR address keywords to be considered an address
         return has_numbers or has_address_keywords
 
     def _clean_address(self, address: str) -> str:
@@ -143,6 +143,7 @@ class SocialPlatformParser:
         address = re.sub(r'\s+', ' ', address)
         address = address.strip()
 
+        # Add proper spacing
         address = re.sub(r'(\d+)([A-Za-z])', r'\1 \2', address)
         address = re.sub(r'([A-Za-z])(\d+)', r'\1 \2', address)
         address = re.sub(r'([A-Za-z])(\d{5,6})', r'\1 \2', address)
@@ -164,6 +165,7 @@ class SocialPlatformParser:
         if not addresses:
             return None
 
+        # Clean and validate each address
         cleaned_addresses = []
         seen = set()
 
@@ -176,6 +178,7 @@ class SocialPlatformParser:
             if not clean_addr or len(clean_addr) < 5:
                 continue
 
+            # Skip if it contains non-address keywords
             if not self._is_valid_address(clean_addr):
                 continue
 
@@ -191,6 +194,7 @@ class SocialPlatformParser:
         if len(cleaned_addresses) == 1:
             return self._clean_and_format_single_address(cleaned_addresses[0])
 
+        # Format with "Address X:" numbering
         formatted = []
         for i, addr in enumerate(cleaned_addresses, 1):
             formatted_addr = self._clean_and_format_single_address(addr)
@@ -206,22 +210,26 @@ class SocialPlatformParser:
 
 
 class LinkedInParser(SocialPlatformParser):
-    """Parser for LinkedIn profiles"""
+    """Parser for LinkedIn profiles - Extracts ONLY location/address data"""
 
     def parse(self, url: str) -> Dict[str, Optional[str]]:
         logger.info(f"Parsing LinkedIn profile: {url}")
 
+        # Try to extract company name from URL
         company_name = self._extract_company_name(url)
 
+        # Method 1: Try linkedin-api (if credentials are available)
         if company_name:
             api_result = self._try_linkedin_api(company_name)
             if api_result:
                 return api_result
 
+        # Method 2: Fallback to requests + BeautifulSoup
         logger.info("Falling back to requests + BeautifulSoup...")
         return self._parse_with_requests(url)
 
     def _try_linkedin_api(self, company_name: str) -> Optional[Dict[str, Optional[str]]]:
+        """Try to extract data using linkedin-api"""
         try:
             from linkedin_api import Linkedin
 
@@ -229,18 +237,23 @@ class LinkedInParser(SocialPlatformParser):
             password = os.environ.get('LINKEDIN_PASSWORD')
 
             if not username or not password:
-                logger.warning("LinkedIn credentials not set.")
+                logger.warning("LinkedIn credentials not set. Skipping API method.")
                 return None
 
+            logger.info(f"Authenticating LinkedIn for company: {company_name}")
             api = Linkedin(username, password)
             company_data = api.get_company(company_name)
 
             if not company_data:
+                logger.warning(f"No company data found for: {company_name}")
                 return None
 
+            # Extract data
             email = self._extract_email_from_data(company_data)
             phone = self._extract_phone_from_data(company_data)
             office = self._extract_locations_from_data(company_data)
+
+            logger.info(f"LinkedIn API extraction - Phone: {phone}, Email: {email}, Address: {office}")
 
             return {
                 'phone': phone if phone else 'Not found',
@@ -253,7 +266,9 @@ class LinkedInParser(SocialPlatformParser):
             return None
 
     def _parse_with_requests(self, url: str) -> Dict[str, Optional[str]]:
+        """Parse LinkedIn profile using requests + BeautifulSoup"""
         try:
+            # Try different URL formats
             urls_to_try = [
                 url,
                 url.replace('in.linkedin.com', 'www.linkedin.com'),
@@ -263,19 +278,32 @@ class LinkedInParser(SocialPlatformParser):
 
             page_content = None
             for try_url in urls_to_try:
+                logger.info(f"Trying URL: {try_url}")
                 page_content = self._fetch_page(try_url)
                 if page_content and len(page_content) > 1000:
                     break
 
             if not page_content:
-                return {'phone': 'Not found', 'email': 'Not found', 'office': 'Not found'}
+                logger.warning(f"Failed to fetch LinkedIn page: {url}")
+                return {
+                    'phone': 'Not found',
+                    'email': 'Not found',
+                    'office': 'Not found'
+                }
 
             soup = BeautifulSoup(page_content, 'html.parser')
             text = soup.get_text()
 
+            # Extract email
             email = self._extract_email(text)
+
+            # Extract phone
             phone = self._extract_phone(text)
+
+            # Extract ONLY locations/addresses
             office = self._extract_linkedin_locations(soup)
+
+            logger.info(f"Requests extraction - Phone: {phone}, Email: {email}, Address: {office}")
 
             return {
                 'phone': phone if phone else 'Not found',
@@ -285,9 +313,14 @@ class LinkedInParser(SocialPlatformParser):
 
         except Exception as e:
             logger.error(f"Error in requests fallback: {str(e)}")
-            return {'phone': 'Not found', 'email': 'Not found', 'office': 'Not found'}
+            return {
+                'phone': 'Not found',
+                'email': 'Not found',
+                'office': 'Not found'
+            }
 
     def _extract_company_name(self, url: str) -> Optional[str]:
+        """Extract company name from LinkedIn URL"""
         patterns = [
             r'linkedin\.com/company/([^/?]+)',
             r'linkedin\.com/company/([^/?]+)/',
@@ -304,10 +337,12 @@ class LinkedInParser(SocialPlatformParser):
         return None
 
     def _extract_linkedin_locations(self, soup: BeautifulSoup) -> Optional[str]:
+        """Extract ONLY locations/addresses from LinkedIn"""
         all_addresses = []
         seen = set()
 
         try:
+            # Method 1: Look for location section with "Locations" heading
             locations_headers = soup.find_all(['h2', 'h3', 'h4', 'div'], string=re.compile(r'Locations|Location', re.IGNORECASE))
 
             for header in locations_headers:
@@ -322,7 +357,9 @@ class LinkedInParser(SocialPlatformParser):
                                 if self._is_valid_address(clean_addr):
                                     all_addresses.append(clean_addr)
                                     seen.add(clean_addr.lower())
+                                    logger.info(f"Found location from section: {clean_addr}")
 
+            # Method 2: Look for org-location elements
             location_elements = soup.select('.org-location, .org-locations, .pv-entity__location')
             for elem in location_elements:
                 address_text = elem.get_text(strip=True)
@@ -332,7 +369,9 @@ class LinkedInParser(SocialPlatformParser):
                         if self._is_valid_address(clean_addr):
                             all_addresses.append(clean_addr)
                             seen.add(clean_addr.lower())
+                            logger.info(f"Found location from org-location: {clean_addr}")
 
+            # Method 3: Look for address-0, address-1 IDs
             for i in range(20):
                 address_element = soup.find(id=f'address-{i}')
                 if address_element:
@@ -343,7 +382,25 @@ class LinkedInParser(SocialPlatformParser):
                             if self._is_valid_address(clean_addr):
                                 all_addresses.append(clean_addr)
                                 seen.add(clean_addr.lower())
+                                logger.info(f"Found address-{i}: {clean_addr}")
 
+            # Method 4: Look for "Get directions" links
+            directions_links = soup.find_all('a', string=re.compile(r'Get directions', re.IGNORECASE))
+            for link in directions_links:
+                parent = link.parent
+                if parent:
+                    address_text = parent.get_text(strip=True)
+                    address_text = re.sub(r'Get directions', '', address_text, flags=re.IGNORECASE)
+                    address_text = address_text.strip()
+                    if address_text and len(address_text) > 10:
+                        clean_addr = self._clean_address(address_text)
+                        if clean_addr and clean_addr.lower() not in seen:
+                            if self._is_valid_address(clean_addr):
+                                all_addresses.append(clean_addr)
+                                seen.add(clean_addr.lower())
+                                logger.info(f"Found location from 'Get directions': {clean_addr}")
+
+            # Format addresses
             if all_addresses:
                 return self._format_multiple_addresses(all_addresses)
 
@@ -354,26 +411,33 @@ class LinkedInParser(SocialPlatformParser):
             return None
 
     def _extract_locations_from_data(self, data: dict) -> Optional[str]:
+        """Extract ONLY locations from company data (API method)"""
         addresses = []
         seen = set()
 
+        # Check headquarters
         if 'headquarters' in data:
             hq = data['headquarters']
-            if hq and isinstance(hq, dict):
-                for key in ['address', 'location', 'streetAddress', 'formattedAddress']:
-                    if key in hq and hq[key]:
-                        addr = self._clean_address(str(hq[key]))
-                        if addr and addr.lower() not in seen and self._is_valid_address(addr):
-                            addresses.append(addr)
-                            seen.add(addr.lower())
+            if hq:
+                if isinstance(hq, dict):
+                    for key in ['address', 'location', 'streetAddress', 'formattedAddress']:
+                        if key in hq and hq[key]:
+                            addr = self._clean_address(str(hq[key]))
+                            if addr and addr.lower() not in seen and self._is_valid_address(addr):
+                                addresses.append(addr)
+                                seen.add(addr.lower())
 
+        # Check locations
         if 'locations' in data:
             for loc in data['locations']:
                 if isinstance(loc, dict):
+                    location_name = loc.get('name', '')
                     for key in ['address', 'location', 'streetAddress', 'formattedAddress']:
                         if key in loc and loc[key]:
                             addr = self._clean_address(str(loc[key]))
                             if addr and addr.lower() not in seen and self._is_valid_address(addr):
+                                if location_name and location_name not in addr:
+                                    addr = f"{location_name}: {addr}"
                                 addresses.append(addr)
                                 seen.add(addr.lower())
 
@@ -383,14 +447,17 @@ class LinkedInParser(SocialPlatformParser):
         return None
 
     def _extract_email_from_data(self, data: dict) -> Optional[str]:
+        """Extract email from company data"""
         email_fields = ['email', 'contactEmail', 'businessEmail', 'supportEmail']
         for field in email_fields:
             if field in data and data[field]:
                 return data[field]
 
-        if 'contact_info' in data and isinstance(data['contact_info'], dict):
-            if 'email' in data['contact_info'] and data['contact_info']['email']:
-                return data['contact_info']['email']
+        if 'contact_info' in data:
+            contact = data['contact_info']
+            if isinstance(contact, dict):
+                if 'email' in contact and contact['email']:
+                    return contact['email']
 
         if 'description' in data:
             email = self._extract_email(data['description'])
@@ -400,14 +467,17 @@ class LinkedInParser(SocialPlatformParser):
         return None
 
     def _extract_phone_from_data(self, data: dict) -> Optional[str]:
+        """Extract phone from company data"""
         phone_fields = ['phone', 'contactPhone', 'businessPhone', 'supportPhone']
         for field in phone_fields:
             if field in data and data[field]:
                 return data[field]
 
-        if 'contact_info' in data and isinstance(data['contact_info'], dict):
-            if 'phone' in data['contact_info'] and data['contact_info']['phone']:
-                return data['contact_info']['phone']
+        if 'contact_info' in data:
+            contact = data['contact_info']
+            if isinstance(contact, dict):
+                if 'phone' in contact and contact['phone']:
+                    return contact['phone']
 
         if 'description' in data:
             phone = self._extract_phone(data['description'])
@@ -418,45 +488,60 @@ class LinkedInParser(SocialPlatformParser):
 
 
 class YouTubeParser(SocialPlatformParser):
-    """Parser for YouTube channels - Extracts from description"""
+    """Parser for YouTube channels using YouTube Data API v3"""
 
     def parse(self, url: str) -> Dict[str, Optional[str]]:
         logger.info(f"Parsing YouTube profile: {url}")
 
-        # Try to get channel ID
+        # Extract channel ID from URL
         channel_id = self._extract_channel_id(url)
+        if not channel_id:
+            logger.warning(f"Could not extract channel ID from URL: {url}")
+            return {
+                'phone': 'Not found',
+                'email': 'Not found',
+                'office': 'Not found'
+            }
+
+        # Get API key from environment variable
         api_key = os.environ.get('YOUTUBE_API_KEY')
+        if not api_key:
+            logger.error("YouTube API key not set. Please set YOUTUBE_API_KEY environment variable.")
+            return {
+                'phone': 'Not found',
+                'email': 'Not found',
+                'office': 'Not found'
+            }
 
-        # Get description from YouTube API if possible
-        description = None
-        if channel_id and api_key:
-            channel_data = self._fetch_channel_data(channel_id, api_key)
-            if channel_data:
-                description = channel_data.get('snippet', {}).get('description', '')
+        # Fetch channel data from YouTube API
+        channel_data = self._fetch_channel_data(channel_id, api_key)
+        if not channel_data:
+            logger.warning(f"Failed to fetch channel data for: {channel_id}")
+            return {
+                'phone': 'Not found',
+                'email': 'Not found',
+                'office': 'Not found'
+            }
 
-        # If no description from API, scrape the page
-        if not description:
-            logger.info("Scraping YouTube page for description...")
-            description = self._scrape_description_from_page(url)
+        # Extract data from channel response
+        email = self._extract_email_from_channel(channel_data)
+        phone = self._extract_phone_from_channel(channel_data)
+        office = self._extract_location_from_channel(channel_data)
 
-        # Extract data from description
-        email = self._extract_email(description) if description else None
-        phone = self._extract_phone(description) if description else None
-        office = self._extract_address_from_text(description) if description else None
+        # If no email found, try to extract from description
+        if not email:
+            description = channel_data.get('snippet', {}).get('description', '')
+            email = self._extract_email(description)
 
-        # Try to get location from channel data if available
-        if not office and channel_id and api_key:
-            channel_data = self._fetch_channel_data(channel_id, api_key)
-            if channel_data:
-                office = self._extract_location_from_channel(channel_data)
+        # If no location found, try to extract from description
+        if not office:
+            description = channel_data.get('snippet', {}).get('description', '')
+            office = self._extract_address_from_text(description)
 
         # Try to get website from channel
-        if not office and channel_id and api_key:
-            channel_data = self._fetch_channel_data(channel_id, api_key)
-            if channel_data:
-                website = self._extract_website_from_channel(channel_data)
-                if website:
-                    office = website
+        website = self._extract_website_from_channel(channel_data)
+        if not office and website:
+            office = website
 
         if office and office != 'Not found':
             office = self._format_address_with_proper_spacing(office)
@@ -469,71 +554,8 @@ class YouTubeParser(SocialPlatformParser):
             'office': office if office else 'Not found'
         }
 
-    def _scrape_description_from_page(self, url: str) -> Optional[str]:
-        """Scrape description from YouTube page HTML"""
-        try:
-            # Try different URL formats
-            urls_to_try = [
-                url,
-                url + '/about',
-                url.replace('/videos', '/about'),
-                url.replace('/featured', '/about'),
-                ]
-
-            for page_url in urls_to_try:
-                logger.info(f"Scraping: {page_url}")
-                page_content = self._fetch_page(page_url)
-                if not page_content:
-                    continue
-
-                # Try to find description in meta tags
-                soup = BeautifulSoup(page_content, 'html.parser')
-                meta_desc = soup.find('meta', {'name': 'description'})
-                if meta_desc:
-                    content = meta_desc.get('content', '')
-                    if content and len(content) > 20:
-                        return content
-
-                # Try to find description in JSON-LD
-                script_tags = soup.find_all('script', type='application/ld+json')
-                for script in script_tags:
-                    try:
-                        data = json.loads(script.string)
-                        if isinstance(data, dict):
-                            if 'description' in data:
-                                return data['description']
-                            if 'about' in data and isinstance(data['about'], dict):
-                                if 'description' in data['about']:
-                                    return data['about']['description']
-                    except:
-                        pass
-
-                # Try to find description in the page text
-                text = soup.get_text()
-                lines = text.split('\n')
-                for i, line in enumerate(lines):
-                    line = line.strip()
-                    if line and len(line) > 30:
-                        # Check if it contains email, phone, or address patterns
-                        if (re.search(r'@', line) or
-                                re.search(r'\+91|\d{10}', line) or
-                                re.search(r'Road|Street|Tower|Building|Surat|Mumbai|Gujarat', line, re.IGNORECASE)):
-                            return line
-
-                # Check if we have any text content that looks like a description
-                for line in lines:
-                    line = line.strip()
-                    if line and len(line) > 30 and len(line) < 500:
-                        if not any(keyword in line.lower() for keyword in ['subscribe', 'views', 'subscribers', 'videos', 'share', 'like']):
-                            return line
-
-            return None
-
-        except Exception as e:
-            logger.error(f"Error scraping description: {str(e)}")
-            return None
-
     def _extract_channel_id(self, url: str) -> Optional[str]:
+        """Extract channel ID from YouTube URL"""
         patterns = [
             r'youtube\.com/channel/([^/?]+)',
             r'youtube\.com/c/([^/?]+)',
@@ -545,6 +567,7 @@ class YouTubeParser(SocialPlatformParser):
             match = re.search(pattern, url)
             if match:
                 identifier = match.group(1)
+                # If it's a handle (@), we need to convert it to channel ID
                 if url.count('@') > 0 or pattern == r'youtube\.com/@([^/?]+)':
                     return self._handle_to_channel_id(identifier)
                 return identifier
@@ -552,17 +575,20 @@ class YouTubeParser(SocialPlatformParser):
         return None
 
     def _handle_to_channel_id(self, handle: str) -> Optional[str]:
+        """Convert YouTube handle to channel ID using API"""
         try:
             api_key = os.environ.get('YOUTUBE_API_KEY')
             if not api_key:
                 return None
 
+            # Use search API to find channel by handle
             search_url = f"https://www.googleapis.com/youtube/v3/search?part=snippet&q={handle}&type=channel&key={api_key}"
             response = requests.get(search_url, timeout=15)
 
             if response.status_code == 200:
                 data = response.json()
                 if data.get('items'):
+                    # Return first result
                     return data['items'][0]['snippet']['channelId']
             return None
 
@@ -571,40 +597,127 @@ class YouTubeParser(SocialPlatformParser):
             return None
 
     def _fetch_channel_data(self, channel_id: str, api_key: str) -> Optional[dict]:
+        """Fetch channel data from YouTube API"""
         try:
+            # Get channel details including branding settings
             url = f"https://www.googleapis.com/youtube/v3/channels?part=snippet,contentDetails,brandingSettings,status,topicDetails&id={channel_id}&key={api_key}"
+
             response = requests.get(url, timeout=15)
 
             if response.status_code == 200:
                 data = response.json()
                 if data.get('items') and len(data['items']) > 0:
                     return data['items'][0]
-            return None
+                else:
+                    logger.warning(f"No channel found for ID: {channel_id}")
+                    return None
+            else:
+                logger.error(f"YouTube API error: {response.status_code} - {response.text}")
+                return None
 
         except Exception as e:
             logger.error(f"Error fetching channel data: {str(e)}")
             return None
 
-    def _extract_location_from_channel(self, channel_data: dict) -> Optional[str]:
+    def _extract_email_from_channel(self, channel_data: dict) -> Optional[str]:
+        """Extract email from channel data"""
         try:
+            # Check branding settings for email
             branding = channel_data.get('brandingSettings', {})
             channel = branding.get('channel', {})
 
-            if 'country' in channel and channel['country']:
-                return channel['country']
+            # Check for email in various fields
+            email_fields = ['email', 'contactEmail', 'businessEmail']
+            for field in email_fields:
+                if field in channel and channel[field]:
+                    return channel[field]
 
-            snippet = channel_data.get('snippet', {})
-            if 'country' in snippet and snippet['country']:
-                return snippet['country']
+            # Check description for email
+            description = channel_data.get('snippet', {}).get('description', '')
+            if description:
+                email = self._extract_email(description)
+                if email:
+                    return email
+
+            # Check for email in links
+            links = branding.get('links', [])
+            for link in links:
+                if 'mailto:' in link.get('url', '').lower():
+                    email = link['url'].replace('mailto:', '').strip()
+                    if email:
+                        return email
 
             return None
 
         except Exception as e:
-            logger.error(f"Error extracting location: {str(e)}")
+            logger.error(f"Error extracting email from channel: {str(e)}")
+            return None
+
+    def _extract_phone_from_channel(self, channel_data: dict) -> Optional[str]:
+        """Extract phone number from channel data"""
+        try:
+            # Check description for phone
+            description = channel_data.get('snippet', {}).get('description', '')
+            if description:
+                phone = self._extract_phone(description)
+                if phone:
+                    return phone
+
+            # Check branding settings
+            branding = channel_data.get('brandingSettings', {})
+            channel = branding.get('channel', {})
+            if 'phone' in channel and channel['phone']:
+                return channel['phone']
+
+            return None
+
+        except Exception as e:
+            logger.error(f"Error extracting phone from channel: {str(e)}")
+            return None
+
+    def _extract_location_from_channel(self, channel_data: dict) -> Optional[str]:
+        """Extract location from channel data"""
+        try:
+            # Check branding settings for location
+            branding = channel_data.get('brandingSettings', {})
+            channel = branding.get('channel', {})
+
+            # Check for location/country
+            if 'country' in channel and channel['country']:
+                return channel['country']
+
+            # Check snippet for country
+            snippet = channel_data.get('snippet', {})
+            if 'country' in snippet and snippet['country']:
+                return snippet['country']
+
+            # Check description for location
+            description = snippet.get('description', '')
+            if description:
+                # Look for location patterns
+                location_patterns = [
+                    r'[Ll]ocation[\s:]+([A-Za-z\s,]+)',
+                    r'[Cc]ountry[\s:]+([A-Za-z\s,]+)',
+                    r'[Ff]rom[\s:]+([A-Za-z\s,]+)',
+                ]
+
+                for pattern in location_patterns:
+                    matches = re.findall(pattern, description)
+                    if matches:
+                        location = matches[0].strip()
+                        if len(location) > 2 and len(location) < 100:
+                            return location
+
+            return None
+
+        except Exception as e:
+            logger.error(f"Error extracting location from channel: {str(e)}")
             return None
 
     def _extract_website_from_channel(self, channel_data: dict) -> Optional[str]:
+        """Extract website from channel data"""
         try:
+            # Check branding settings for links
             branding = channel_data.get('brandingSettings', {})
             links = branding.get('links', [])
 
@@ -613,6 +726,7 @@ class YouTubeParser(SocialPlatformParser):
                 if url and 'youtube.com' not in url.lower() and 'youtu.be' not in url.lower():
                     return url
 
+            # Check description for website
             description = channel_data.get('snippet', {}).get('description', '')
             if description:
                 urls = re.findall(r'https?://[^\s<>"]+|www\.[^\s<>"]+', description)
@@ -623,7 +737,7 @@ class YouTubeParser(SocialPlatformParser):
             return None
 
         except Exception as e:
-            logger.error(f"Error extracting website: {str(e)}")
+            logger.error(f"Error extracting website from channel: {str(e)}")
             return None
 
 
@@ -637,7 +751,19 @@ class InstagramParser(SocialPlatformParser):
         text = soup.get_text()
         email = self._extract_email(text)
         phone = self._extract_phone(text)
-        address = self._extract_address_from_text(text)
+        address = None
+        bio_selectors = ['.bio', '._aaqe', '.x9f619']
+        for selector in bio_selectors:
+            elements = soup.select(selector)
+            for element in elements:
+                text_content = element.get_text(strip=True)
+                if self._is_valid_address(text_content):
+                    address = text_content
+                    break
+            if address:
+                break
+        if not address:
+            address = self._extract_address_from_text(text)
         if address:
             address = self._format_multiple_addresses([address]) if isinstance(address, str) else address
         return {
