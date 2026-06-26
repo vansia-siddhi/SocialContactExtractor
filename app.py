@@ -4,7 +4,6 @@ from backend.extractor import ContactExtractor
 import logging
 import os
 from datetime import datetime, timezone
-import traceback
 
 # Configure logging
 logging.basicConfig(
@@ -17,25 +16,25 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Create Flask app
 app = Flask(__name__)
 CORS(app)
 
+# Initialize extractor
 extractor = ContactExtractor()
 
 @app.route('/')
 def index():
+    """Render the main page"""
     return render_template('index.html')
 
 @app.route('/api/extract', methods=['POST'])
 def extract_contacts():
+    """
+    API endpoint to extract contact details from social media URL
+    """
     try:
         data = request.get_json()
-        if not data:
-            return jsonify({
-                'success': False,
-                'error': 'Invalid request: No JSON data received'
-            }), 400
-
         url = data.get('url', '').strip()
 
         if not url:
@@ -44,18 +43,15 @@ def extract_contacts():
                 'error': 'Please provide a valid URL'
             }), 400
 
+        # Add protocol if missing
         if not url.startswith('http://') and not url.startswith('https://'):
             url = 'https://' + url
 
         logger.info(f"Extracting contacts from: {url}")
 
+        # Extract contact details
         contacts = extractor.extract(url)
         platform = extractor.detect_platform(url)
-
-        # Ensure all values are strings
-        for key in ['phone', 'email', 'office']:
-            if key not in contacts or contacts[key] is None:
-                contacts[key] = 'Not found'
 
         return jsonify({
             'success': True,
@@ -67,7 +63,6 @@ def extract_contacts():
 
     except Exception as e:
         logger.error(f"Error extracting contacts: {str(e)}")
-        logger.error(traceback.format_exc())
         return jsonify({
             'success': False,
             'error': str(e)
@@ -75,13 +70,19 @@ def extract_contacts():
 
 @app.route('/api/health', methods=['GET'])
 def health_check():
+    """Health check endpoint"""
     return jsonify({
         'status': 'healthy',
         'timestamp': datetime.now(timezone.utc).isoformat()
     }), 200
 
 if __name__ == '__main__':
+    # Create necessary directories
     os.makedirs('logs', exist_ok=True)
     os.makedirs('data', exist_ok=True)
+
+    # Get port from environment variable (Render sets this)
     port = int(os.environ.get('PORT', 5000))
+
+    # Run the app
     app.run(debug=False, host='0.0.0.0', port=port)
