@@ -22,7 +22,7 @@ class SocialPlatformParser:
     def _fetch_page(self, url: str) -> Optional[str]:
         """Fetch page content using requests"""
         try:
-            response = requests.get(url, headers=self.headers, timeout=10, verify=False)
+            response = requests.get(url, headers=self.headers, timeout=15, verify=False)
             response.raise_for_status()
             return response.text
         except Exception as e:
@@ -181,48 +181,44 @@ class SocialPlatformParser:
 
 
 class LinkedInParser(SocialPlatformParser):
-    """Parser for LinkedIn profiles using linkedin-api"""
+    """Parser for LinkedIn profiles - Hybrid approach (API + Fallback)"""
 
     def parse(self, url: str) -> Dict[str, Optional[str]]:
         logger.info(f"Parsing LinkedIn profile: {url}")
 
-        # Extract company name from URL
+        # Try to extract company name from URL
         company_name = self._extract_company_name(url)
-        if not company_name:
-            logger.warning(f"Could not extract company name from URL: {url}")
-            return {
-                'phone': 'Not found',
-                'email': 'Not found',
-                'office': 'Not found'
-            }
 
+        # Method 1: Try linkedin-api (if credentials are available)
+        if company_name:
+            api_result = self._try_linkedin_api(company_name)
+            if api_result:
+                return api_result
+
+        # Method 2: Fallback to requests + BeautifulSoup
+        logger.info("Falling back to requests + BeautifulSoup...")
+        return self._parse_with_requests(url)
+
+    def _try_linkedin_api(self, company_name: str) -> Optional[Dict[str, Optional[str]]]:
+        """Try to extract data using linkedin-api"""
         try:
             from linkedin_api import Linkedin
+            import os
 
-            # Get credentials from environment variables
             username = os.environ.get('LINKEDIN_USERNAME')
             password = os.environ.get('LINKEDIN_PASSWORD')
 
             if not username or not password:
-                logger.error("LinkedIn credentials not set in environment variables")
-                return {
-                    'phone': 'Not found',
-                    'email': 'Not found',
-                    'office': 'Not found'
-                }
+                logger.warning("LinkedIn credentials not set. Skipping API method.")
+                return None
 
-            # Authenticate and get company data
             logger.info(f"Authenticating LinkedIn for company: {company_name}")
             api = Linkedin(username, password)
             company_data = api.get_company(company_name)
 
             if not company_data:
                 logger.warning(f"No company data found for: {company_name}")
-                return {
-                    'phone': 'Not found',
-                    'email': 'Not found',
-                    'office': 'Not found'
-                }
+                return None
 
             # Extract data
             email = self._extract_email_from_data(company_data)
@@ -232,7 +228,7 @@ class LinkedInParser(SocialPlatformParser):
             if office and office != 'Not found':
                 office = self._format_address_with_proper_spacing(office)
 
-            logger.info(f"LinkedIn extraction - Phone: {phone}, Email: {email}, Address: {office}")
+            logger.info(f"LinkedIn API extraction - Phone: {phone}, Email: {email}, Address: {office}")
 
             return {
                 'phone': phone if phone else 'Not found',
@@ -241,7 +237,60 @@ class LinkedInParser(SocialPlatformParser):
             }
 
         except Exception as e:
-            logger.error(f"Error extracting LinkedIn data: {str(e)}")
+            logger.error(f"LinkedIn API error: {str(e)}")
+            return None
+
+    def _parse_with_requests(self, url: str) -> Dict[str, Optional[str]]:
+        """Parse LinkedIn profile using requests + BeautifulSoup"""
+        try:
+            # Try different URL formats
+            urls_to_try = [
+                url,
+                url.replace('in.linkedin.com', 'www.linkedin.com'),
+                url.replace('/in/', '/'),
+                url + '/about/',
+                ]
+
+            page_content = None
+            for try_url in urls_to_try:
+                logger.info(f"Trying URL: {try_url}")
+                page_content = self._fetch_page(try_url)
+                if page_content and len(page_content) > 1000:
+                    break
+
+            if not page_content:
+                logger.warning(f"Failed to fetch LinkedIn page: {url}")
+                return {
+                    'phone': 'Not found',
+                    'email': 'Not found',
+                    'office': 'Not found'
+                }
+
+            soup = BeautifulSoup(page_content, 'html.parser')
+            text = soup.get_text()
+
+            # Extract email
+            email = self._extract_email(text)
+
+            # Extract phone
+            phone = self._extract_phone(text)
+
+            # Extract address
+            office = self._extract_linkedin_address(soup, text)
+
+            if office and office != 'Not found':
+                office = self._format_address_with_proper_spacing(office)
+
+            logger.info(f"Requests extraction - Phone: {phone}, Email: {email}, Address: {office}")
+
+            return {
+                'phone': phone if phone else 'Not found',
+                'email': email if email else 'Not found',
+                'office': office if office else 'Not found'
+            }
+
+        except Exception as e:
+            logger.error(f"Error in requests fallback: {str(e)}")
             return {
                 'phone': 'Not found',
                 'email': 'Not found',
@@ -250,36 +299,111 @@ class LinkedInParser(SocialPlatformParser):
 
     def _extract_company_name(self, url: str) -> Optional[str]:
         """Extract company name from LinkedIn URL"""
-        # Pattern for company URL: linkedin.com/company/{company-name}
-        match = re.search(r'linkedin\.com/company/([^/?]+)', url)
-        if match:
-            return match.group(1)
+        patterns = [
+            r'linkedin\.com/company/([^/?]+)',
+            r'linkedin\.com/company/([^/?]+)/',
+            r'linkedin\.com/company/([^/?]+)\?',
+        ]
 
-        # Also check for company URL: linkedin.com/company/{company-name}/about
-        match = re.search(r'linkedin\.com/company/([^/?]+)/', url)
-        if match:
-            return match.group(1)
-
+        for pattern in patterns:
+            match = re.search(pattern, url)
+            if match:
+                name = match.group(1)
+                name = name.split('/')[0]
+                name = name.split('?')[0]
+                return name
         return None
+
+    def _extract_linkedin_address(self, soup: BeautifulSoup, text: str) -> Optional[str]:
+        """Extract address from LinkedIn using multiple methods"""
+        try:
+            # Method 1: Look for address-0, address-1 IDs
+            for i in range(10):
+                address_element = soup.find(id=f'address-{i}')
+                if address_element:
+                    address_text = address_element.get_text(strip=True)
+                    if address_text and len(address_text) > 5:
+                        address_text = self._clean_address(address_text)
+                        if self._is_valid_address(address_text):
+                            logger.info(f"Found address-{i}: {address_text}")
+                            return address_text
+
+            # Method 2: Look for location selectors
+            location_selectors = [
+                '.pv-top-card-section__location',
+                '.pv-top-card--list .t-black--light',
+                '[data-field="location"]',
+                '.pv-top-card .pv-top-card-section__location',
+                '.org-location',
+                '.org-locations',
+                '.pv-entity__location',
+                '.pv-about-section .pv-about__summary-text',
+                '.company-location',
+                '.headquarters',
+                '.location',
+                '.address',
+            ]
+
+            for selector in location_selectors:
+                elements = soup.select(selector)
+                for element in elements:
+                    text_content = element.get_text(strip=True)
+                    if text_content and len(text_content) > 5:
+                        text_content = self._clean_address(text_content)
+                        if self._is_valid_address(text_content):
+                            logger.info(f"Found address from selector {selector}: {text_content}")
+                            return text_content
+
+            # Method 3: Look for address in meta tags
+            meta_selectors = [
+                'meta[property="og:description"]',
+                'meta[name="description"]',
+                'meta[property="og:title"]',
+            ]
+
+            for selector in meta_selectors:
+                elements = soup.select(selector)
+                for element in elements:
+                    content = element.get('content', '')
+                    if content:
+                        address = self._extract_address_from_text(content)
+                        if address and self._is_valid_address(address):
+                            logger.info(f"Found address in meta: {address}")
+                            return address
+
+            # Method 4: Extract from text
+            address = self._extract_address_from_text(text)
+            if address and self._is_valid_address(address):
+                logger.info(f"Found address from text: {address}")
+                return address
+
+            return None
+
+        except Exception as e:
+            logger.error(f"Error extracting LinkedIn address: {str(e)}")
+            return None
+
+    def _clean_address(self, address: str) -> str:
+        """Clean up address text"""
+        address = re.sub(r'Get directions', '', address, flags=re.IGNORECASE)
+        address = re.sub(r'^Primary', '', address, flags=re.IGNORECASE)
+        address = re.sub(r'\s+', ' ', address)
+        address = re.sub(r';+$', '', address)
+        return address.strip()
 
     def _extract_email_from_data(self, data: dict) -> Optional[str]:
         """Extract email from company data"""
-        # Try common email fields
         email_fields = ['email', 'contactEmail', 'businessEmail', 'supportEmail']
         for field in email_fields:
             if field in data and data[field]:
                 return data[field]
 
-        # Check in contact_info
         if 'contact_info' in data:
             contact = data['contact_info']
             if isinstance(contact, dict):
                 if 'email' in contact and contact['email']:
                     return contact['email']
-                if 'contactEmail' in contact and contact['contactEmail']:
-                    return contact['contactEmail']
 
-        # Check in description for email pattern
         if 'description' in data:
             email = self._extract_email(data['description'])
             if email:
@@ -289,22 +413,17 @@ class LinkedInParser(SocialPlatformParser):
 
     def _extract_phone_from_data(self, data: dict) -> Optional[str]:
         """Extract phone from company data"""
-        # Try common phone fields
         phone_fields = ['phone', 'contactPhone', 'businessPhone', 'supportPhone']
         for field in phone_fields:
             if field in data and data[field]:
                 return data[field]
 
-        # Check in contact_info
         if 'contact_info' in data:
             contact = data['contact_info']
             if isinstance(contact, dict):
                 if 'phone' in contact and contact['phone']:
                     return contact['phone']
-                if 'contactPhone' in contact and contact['contactPhone']:
-                    return contact['contactPhone']
 
-        # Check in description for phone pattern
         if 'description' in data:
             phone = self._extract_phone(data['description'])
             if phone:
@@ -317,7 +436,6 @@ class LinkedInParser(SocialPlatformParser):
         addresses = []
         seen = set()
 
-        # Check headquarters
         if 'headquarters' in data:
             hq = data['headquarters']
             if hq:
@@ -326,13 +444,7 @@ class LinkedInParser(SocialPlatformParser):
                     if address and address not in seen:
                         addresses.append(address)
                         seen.add(address)
-                    # Also check location fields
-                    for key in ['location', 'streetAddress', 'addressLine1', 'formattedAddress']:
-                        if key in hq and hq[key] and hq[key] not in seen:
-                            addresses.append(hq[key])
-                            seen.add(hq[key])
 
-        # Check locations
         if 'locations' in data:
             for loc in data['locations']:
                 if isinstance(loc, dict):
@@ -340,54 +452,18 @@ class LinkedInParser(SocialPlatformParser):
                     if address and address not in seen:
                         addresses.append(address)
                         seen.add(address)
-                    # Also check location fields
-                    for key in ['location', 'streetAddress', 'addressLine1', 'formattedAddress']:
-                        if key in loc and loc[key] and loc[key] not in seen:
-                            addresses.append(loc[key])
-                            seen.add(loc[key])
-
-        # Check address in about section
-        if 'about' in data:
-            about = data['about']
-            if isinstance(about, dict):
-                for key in ['address', 'location', 'headquarters', 'streetAddress']:
-                    if key in about and about[key] and about[key] not in seen:
-                        addresses.append(about[key])
-                        seen.add(about[key])
-
-        # Check for address in description
-        if 'description' in data:
-            address = self._extract_address_from_text(data['description'])
-            if address and address not in seen:
-                addresses.append(address)
-                seen.add(address)
-
-        # Check for address in company name (sometimes includes location)
-        if 'companyName' in data or 'name' in data:
-            name = data.get('companyName') or data.get('name', '')
-            address = self._extract_address_from_text(name)
-            if address and address not in seen:
-                addresses.append(address)
-                seen.add(address)
 
         if addresses:
-            # Clean up addresses
-            cleaned_addresses = []
+            cleaned = []
             for addr in addresses:
-                # Remove extra spaces
                 addr = re.sub(r'\s+', ' ', addr).strip()
-                # Remove duplicate "Get directions"
-                addr = re.sub(r'Get directions', '', addr, flags=re.IGNORECASE)
-                # Remove "Primary" prefix
-                addr = re.sub(r'^Primary', '', addr, flags=re.IGNORECASE)
                 if addr and self._is_valid_address(addr):
-                    cleaned_addresses.append(addr)
+                    cleaned.append(addr)
 
-            if cleaned_addresses:
-                # Remove duplicates (case insensitive)
+            if cleaned:
                 unique = []
                 seen = set()
-                for addr in cleaned_addresses:
+                for addr in cleaned:
                     if addr.lower() not in seen:
                         unique.append(addr)
                         seen.add(addr.lower())
@@ -395,7 +471,6 @@ class LinkedInParser(SocialPlatformParser):
                 if len(unique) == 1:
                     return unique[0]
                 else:
-                    # Format with numbering
                     formatted = []
                     for i, addr in enumerate(unique, 1):
                         formatted.append(f"{i}. {addr}")
@@ -404,43 +479,20 @@ class LinkedInParser(SocialPlatformParser):
         return None
 
 
+# Keep the rest of the parsers unchanged
 class InstagramParser(SocialPlatformParser):
     def parse(self, url: str) -> Dict[str, Optional[str]]:
         logger.info(f"Parsing Instagram profile: {url}")
-
         page_content = self._fetch_page(url)
-
         if not page_content:
-            return {
-                'phone': 'Not found',
-                'email': 'Not found',
-                'office': 'Not found'
-            }
-
+            return {'phone': 'Not found', 'email': 'Not found', 'office': 'Not found'}
         soup = BeautifulSoup(page_content, 'html.parser')
         text = soup.get_text()
-
         email = self._extract_email(text)
         phone = self._extract_phone(text)
-
-        address = None
-        bio_selectors = ['.bio', '._aaqe', '.x9f619']
-        for selector in bio_selectors:
-            elements = soup.select(selector)
-            for element in elements:
-                text_content = element.get_text(strip=True)
-                if any(keyword in text_content.lower() for keyword in ['road', 'street', 'tower', 'surat', 'mumbai']):
-                    address = text_content
-                    break
-            if address:
-                break
-
-        if not address:
-            address = self._extract_address_from_text(text)
-
+        address = self._extract_address_from_text(text)
         if address:
             address = self._format_address_with_proper_spacing(address)
-
         return {
             'phone': phone if phone else 'Not found',
             'email': email if email else 'Not found',
@@ -451,40 +503,16 @@ class InstagramParser(SocialPlatformParser):
 class FacebookParser(SocialPlatformParser):
     def parse(self, url: str) -> Dict[str, Optional[str]]:
         logger.info(f"Parsing Facebook profile: {url}")
-
         page_content = self._fetch_page(url)
-
         if not page_content:
-            return {
-                'phone': 'Not found',
-                'email': 'Not found',
-                'office': 'Not found'
-            }
-
+            return {'phone': 'Not found', 'email': 'Not found', 'office': 'Not found'}
         soup = BeautifulSoup(page_content, 'html.parser')
         text = soup.get_text()
-
         email = self._extract_email(text)
         phone = self._extract_phone(text)
-
-        address = None
-        about_selectors = ['.about', '.profile-about', '[data-testid="about"]']
-        for selector in about_selectors:
-            elements = soup.select(selector)
-            for element in elements:
-                text_content = element.get_text(strip=True)
-                if any(keyword in text_content.lower() for keyword in ['road', 'street', 'tower', 'surat', 'mumbai']):
-                    address = text_content
-                    break
-            if address:
-                break
-
-        if not address:
-            address = self._extract_address_from_text(text)
-
+        address = self._extract_address_from_text(text)
         if address:
             address = self._format_address_with_proper_spacing(address)
-
         return {
             'phone': phone if phone else 'Not found',
             'email': email if email else 'Not found',
@@ -495,40 +523,16 @@ class FacebookParser(SocialPlatformParser):
 class TwitterParser(SocialPlatformParser):
     def parse(self, url: str) -> Dict[str, Optional[str]]:
         logger.info(f"Parsing Twitter/X profile: {url}")
-
         page_content = self._fetch_page(url)
-
         if not page_content:
-            return {
-                'phone': 'Not found',
-                'email': 'Not found',
-                'office': 'Not found'
-            }
-
+            return {'phone': 'Not found', 'email': 'Not found', 'office': 'Not found'}
         soup = BeautifulSoup(page_content, 'html.parser')
         text = soup.get_text()
-
         email = self._extract_email(text)
         phone = self._extract_phone(text)
-
-        address = None
-        bio_selectors = ['.bio', '[data-testid="UserDescription"]']
-        for selector in bio_selectors:
-            elements = soup.select(selector)
-            for element in elements:
-                text_content = element.get_text(strip=True)
-                if any(keyword in text_content.lower() for keyword in ['road', 'street', 'tower', 'surat', 'mumbai']):
-                    address = text_content
-                    break
-            if address:
-                break
-
-        if not address:
-            address = self._extract_address_from_text(text)
-
+        address = self._extract_address_from_text(text)
         if address:
             address = self._format_address_with_proper_spacing(address)
-
         return {
             'phone': phone if phone else 'Not found',
             'email': email if email else 'Not found',
@@ -539,26 +543,16 @@ class TwitterParser(SocialPlatformParser):
 class YouTubeParser(SocialPlatformParser):
     def parse(self, url: str) -> Dict[str, Optional[str]]:
         logger.info(f"Parsing YouTube profile: {url}")
-
         page_content = self._fetch_page(url)
-
         if not page_content:
-            return {
-                'phone': 'Not found',
-                'email': 'Not found',
-                'office': 'Not found'
-            }
-
+            return {'phone': 'Not found', 'email': 'Not found', 'office': 'Not found'}
         soup = BeautifulSoup(page_content, 'html.parser')
         text = soup.get_text()
-
         email = self._extract_email(text)
         phone = self._extract_phone(text)
         address = self._extract_address_from_text(text)
-
         if address:
             address = self._format_address_with_proper_spacing(address)
-
         return {
             'phone': phone if phone else 'Not found',
             'email': email if email else 'Not found',
@@ -569,28 +563,18 @@ class YouTubeParser(SocialPlatformParser):
 class GenericParser(SocialPlatformParser):
     def parse(self, url: str) -> Dict[str, Optional[str]]:
         logger.info(f"Using generic parser for: {url}")
-
         page_content = self._fetch_page(url)
-
         if page_content:
             soup = BeautifulSoup(page_content, 'html.parser')
             text = soup.get_text()
-
             phone = self._extract_phone(text)
             email = self._extract_email(text)
             address = self._extract_address_from_text(text)
-
             if address:
                 address = self._format_address_with_proper_spacing(address)
-
             return {
                 'phone': phone if phone else 'Not found',
                 'email': email if email else 'Not found',
                 'office': address if address else 'Not found'
             }
-
-        return {
-            'phone': 'Not found',
-            'email': 'Not found',
-            'office': 'Not found'
-        }
+        return {'phone': 'Not found', 'email': 'Not found', 'office': 'Not found'}

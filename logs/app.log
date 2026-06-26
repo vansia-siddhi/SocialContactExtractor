@@ -2124,3 +2124,59 @@ MemoryError
 2026-06-25 17:47:42,449 - backend.extractor - INFO - Extracted contacts using linkedin parser
 2026-06-25 17:47:42,450 - backend.extractor - INFO - Extraction result: {'phone': '+919023813983', 'email': 'hr@codesdot.com', 'office': '301, 3 rd floor,Meredian tower, Nr.UTC , Udhna Darwaja Surat, Gujarat 395002, IN'}
 2026-06-25 17:47:42,450 - werkzeug - INFO - 192.168.29.51 - - [25/Jun/2026 17:47:42] "POST /api/extract HTTP/1.1" 200 -
+2026-06-26 11:28:16,360 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.29.51:5000
+2026-06-26 11:28:16,360 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2026-06-26 11:28:18,468 - werkzeug - INFO - 192.168.29.51 - - [26/Jun/2026 11:28:18] "GET / HTTP/1.1" 200 -
+2026-06-26 11:28:18,619 - werkzeug - INFO - 192.168.29.51 - - [26/Jun/2026 11:28:18] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-06-26 11:28:18,661 - werkzeug - INFO - 192.168.29.51 - - [26/Jun/2026 11:28:18] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2026-06-26 11:28:19,667 - werkzeug - INFO - 192.168.29.51 - - [26/Jun/2026 11:28:19] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-06-26 11:28:19,994 - werkzeug - INFO - 192.168.29.51 - - [26/Jun/2026 11:28:19] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2026-06-26 11:28:21,522 - __main__ - INFO - Extracting contacts from: https://in.linkedin.com/company/codesdot-solution-llp
+2026-06-26 11:28:21,523 - backend.social_platforms - INFO - Parsing LinkedIn profile: https://in.linkedin.com/company/codesdot-solution-llp
+2026-06-26 11:28:21,526 - backend.social_platforms - ERROR - Error extracting LinkedIn data: No module named 'linkedin_api'
+2026-06-26 11:28:21,527 - backend.extractor - INFO - Extracted contacts using linkedin parser
+2026-06-26 11:28:21,528 - werkzeug - INFO - 192.168.29.51 - - [26/Jun/2026 11:28:21] "POST /api/extract HTTP/1.1" 200 -
+2026-06-26 11:28:23,135 - __main__ - INFO - Extracting contacts from: https://in.linkedin.com/company/codesdot-solution-llp
+2026-06-26 11:28:23,135 - backend.social_platforms - INFO - Parsing LinkedIn profile: https://in.linkedin.com/company/codesdot-solution-llp
+2026-06-26 11:28:23,135 - backend.social_platforms - ERROR - Error extracting LinkedIn data: No module named 'linkedin_api'
+2026-06-26 11:28:23,136 - backend.extractor - INFO - Extracted contacts using linkedin parser
+2026-06-26 11:28:23,136 - werkzeug - INFO - 192.168.29.51 - - [26/Jun/2026 11:28:23] "POST /api/extract HTTP/1.1" 200 -
+2026-06-26 11:28:23,783 - __main__ - INFO - Extracting contacts from: https://in.linkedin.com/company/codesdot-solution-llp
+2026-06-26 11:28:23,783 - backend.social_platforms - INFO - Parsing LinkedIn profile: https://in.linkedin.com/company/codesdot-solution-llp
+2026-06-26 11:28:23,784 - backend.social_platforms - ERROR - Error extracting LinkedIn data: No module named 'linkedin_api'
+2026-06-26 11:28:23,784 - backend.extractor - INFO - Extracted contacts using linkedin parser
+2026-06-26 11:28:23,784 - werkzeug - INFO - 192.168.29.51 - - [26/Jun/2026 11:28:23] "POST /api/extract HTTP/1.1" 200 -
+2026-06-26 11:30:33,976 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.29.51:5000
+2026-06-26 11:30:33,976 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2026-06-26 11:30:35,536 - werkzeug - INFO - 192.168.29.51 - - [26/Jun/2026 11:30:35] "GET / HTTP/1.1" 200 -
+2026-06-26 11:30:35,623 - werkzeug - INFO - 192.168.29.51 - - [26/Jun/2026 11:30:35] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-06-26 11:30:35,644 - werkzeug - INFO - 192.168.29.51 - - [26/Jun/2026 11:30:35] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2026-06-26 11:30:35,729 - werkzeug - INFO - 192.168.29.51 - - [26/Jun/2026 11:30:35] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2026-06-26 11:30:38,831 - __main__ - INFO - Extracting contacts from: https://in.linkedin.com/company/codesdot-solution-llp
+2026-06-26 11:30:38,831 - backend.social_platforms - INFO - Parsing LinkedIn profile: https://in.linkedin.com/company/codesdot-solution-llp
+2026-06-26 11:30:38,832 - backend.social_platforms - ERROR - LinkedIn API error: No module named 'linkedin_api'
+2026-06-26 11:30:38,832 - backend.social_platforms - INFO - Falling back to requests + BeautifulSoup...
+2026-06-26 11:30:38,834 - backend.social_platforms - INFO - Trying URL: https://in.linkedin.com/company/codesdot-solution-llp
+2026-06-26 11:30:40,929 - backend.social_platforms - INFO - Found address-0: 301, 3rd floor,Meredian tower, Nr.UTC , Udhna DarwajaSurat, Gujarat 395002, IN
+2026-06-26 11:30:40,931 - backend.social_platforms - INFO - Requests extraction - Phone: +919023813983, Email: hr@codesdot.com, Address: 301, 3 rd floor,Meredian tower, Nr.UTC , Udhna Darwaja Surat, Gujarat 395002, IN
+2026-06-26 11:30:40,931 - backend.extractor - INFO - Extracted contacts using linkedin parser
+2026-06-26 11:30:40,931 - werkzeug - INFO - 192.168.29.51 - - [26/Jun/2026 11:30:40] "POST /api/extract HTTP/1.1" 200 -
+2026-06-26 11:31:04,539 - werkzeug - INFO - 192.168.29.51 - - [26/Jun/2026 11:31:04] "GET / HTTP/1.1" 200 -
+2026-06-26 11:31:04,579 - werkzeug - INFO - 192.168.29.51 - - [26/Jun/2026 11:31:04] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-06-26 11:31:04,598 - werkzeug - INFO - 192.168.29.51 - - [26/Jun/2026 11:31:04] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2026-06-26 11:31:04,747 - werkzeug - INFO - 192.168.29.51 - - [26/Jun/2026 11:31:04] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2026-06-26 11:31:06,664 - __main__ - INFO - Extracting contacts from: https://in.linkedin.com/company/moontechnolabs
+2026-06-26 11:31:06,664 - backend.social_platforms - INFO - Parsing LinkedIn profile: https://in.linkedin.com/company/moontechnolabs
+2026-06-26 11:31:06,665 - backend.social_platforms - ERROR - LinkedIn API error: No module named 'linkedin_api'
+2026-06-26 11:31:06,665 - backend.social_platforms - INFO - Falling back to requests + BeautifulSoup...
+2026-06-26 11:31:06,665 - backend.social_platforms - INFO - Trying URL: https://in.linkedin.com/company/moontechnolabs
+2026-06-26 11:31:07,884 - backend.social_platforms - INFO - Found address-0: C 105A Ganesh Meredian, Opp.Kargil Petrol Pump, Sarkhej - Gandhinagar Highway, SolaAhmedabad, GJ 380060, IN
+2026-06-26 11:31:07,887 - backend.social_platforms - INFO - Requests extraction - Phone: None, Email: sales@moontechnolabs.com, Address: C 105 A Ganesh Meredian, Opp.Kargil Petrol Pump, Sarkhej - Gandhinagar Highway, Sola Ahmedabad, GJ 380060, IN
+2026-06-26 11:31:07,888 - backend.extractor - INFO - Extracted contacts using linkedin parser
+2026-06-26 11:31:07,888 - werkzeug - INFO - 192.168.29.51 - - [26/Jun/2026 11:31:07] "POST /api/extract HTTP/1.1" 200 -
